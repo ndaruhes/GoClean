@@ -1,15 +1,15 @@
 package responses
 
 type SuccessResponse struct {
-	StatusCode  int
 	SuccessCode string
+	StatusCode  int
 	Data        interface{}
 }
 
 type ErrorResponse struct {
-	StatusCode int
 	Error      error
 	ErrorCode  string
+	StatusCode int
 	Data       interface{}
 }
 

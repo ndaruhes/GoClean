@@ -1,7 +1,7 @@
 package responses
 
 type LoginResponse struct {
-	TokenID string `json:"tokenId"`
+	Token string `json:"token"`
 }
 
 type CurrentUserResponse struct {

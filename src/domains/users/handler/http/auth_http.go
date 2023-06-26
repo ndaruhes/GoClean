@@ -68,25 +68,31 @@ func (handler *AuthHttp) RegisterWithEmailPassword(ctx *gin.Context) {
 func (handler *AuthHttp) LoginByPass(ctx *gin.Context) {
 	request := &requests.LoginRequest{}
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, responses.ErrorResponse{
-			Error: err,
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			Error:      err,
+			StatusCode: http.StatusBadRequest,
 		})
+		return
 	}
 
 	if err := validators.ValidateStruct(ctx, request); err != nil {
-		ctx.JSON(http.StatusBadRequest, responses.ErrorResponse{
-			Error: err,
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			Error:      err,
+			StatusCode: http.StatusBadRequest,
 		})
+		return
 	}
 
-	res, err := handler.authUc.LoginByPass(ctx, request)
+	data, err := handler.authUc.LoginByPass(ctx, request)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
+		return
 	}
 
-	ctx.JSON(http.StatusOK, responses.LoginResponse{
-		TokenID: res.TokenID,
+	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		SuccessCode: "SUCCESS-0002",
+		Data:        data,
 	})
 }

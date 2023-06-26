@@ -9,6 +9,7 @@ import (
 	"go-clean/models/responses"
 	"go-clean/shared/helpers"
 	"go-clean/shared/validators"
+	"gorm.io/gorm"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -29,8 +30,7 @@ func (uc *AuthUseCase) RegisterByPass(ctx *gin.Context, request *requests.Regist
 	if user != nil {
 		return &messages.ErrorWrapper{
 			Context:    ctx,
-			Err:        err,
-			ErrorCode:  "ERROR-400003",
+			ErrorCode:  "ERROR-401001",
 			StatusCode: http.StatusUnauthorized,
 		}
 	}
@@ -65,7 +65,13 @@ func (uc *AuthUseCase) RegisterByPass(ctx *gin.Context, request *requests.Regist
 func (uc *AuthUseCase) LoginByPass(ctx *gin.Context, request *requests.LoginRequest) (*responses.LoginResponse, error) {
 	user, err := uc.authRepo.FindByEmail(ctx, request.Email)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &messages.ErrorWrapper{
+				Context:    ctx,
+				ErrorCode:  "ERROR-401002",
+				StatusCode: http.StatusUnauthorized,
+			}
+		}
 	}
 
 	passwordPassed, err := helpers.ComparePassword(request.Password, user.Password)
@@ -75,8 +81,9 @@ func (uc *AuthUseCase) LoginByPass(ctx *gin.Context, request *requests.LoginRequ
 
 	if passwordPassed == false {
 		return nil, &messages.ErrorWrapper{
-			StatusCode: http.StatusBadRequest,
-			Err:        errors.New("Wrong Credentials"),
+			Context:    ctx,
+			ErrorCode:  "ERROR-401003",
+			StatusCode: http.StatusUnauthorized,
 		}
 	}
 
@@ -91,6 +98,6 @@ func (uc *AuthUseCase) LoginByPass(ctx *gin.Context, request *requests.LoginRequ
 	}
 
 	return &responses.LoginResponse{
-		TokenID: token,
+		Token: token,
 	}, nil
 }
