@@ -4,7 +4,7 @@ import (
 	"errors"
 	"go-clean/domains/users"
 	"go-clean/domains/users/entities"
-	errors2 "go-clean/models/messages"
+	"go-clean/models/messages"
 	"go-clean/models/requests"
 	"go-clean/models/responses"
 	"go-clean/shared/helpers"
@@ -25,6 +25,16 @@ func NewAuthUseCase(authRepo users.AuthRepository) *AuthUseCase {
 }
 
 func (uc *AuthUseCase) RegisterByPass(ctx *gin.Context, request *requests.RegisterWithEmailPasswordRequest) error {
+	user, err := uc.authRepo.FindByEmail(ctx, request.Email)
+	if user != nil {
+		return &messages.ErrorWrapper{
+			Context:    ctx,
+			Err:        err,
+			ErrorCode:  "ERROR-400003",
+			StatusCode: http.StatusUnauthorized,
+		}
+	}
+
 	hashPassword, err := helpers.GeneratePassword(request.Password)
 	if err != nil {
 		return err
@@ -38,7 +48,7 @@ func (uc *AuthUseCase) RegisterByPass(ctx *gin.Context, request *requests.Regist
 	}
 
 	if err := validators.ValidateStruct(ctx, newUser); err != nil {
-		return &errors2.ErrorWrapper{
+		return &messages.ErrorWrapper{
 			Context:    ctx,
 			Err:        err,
 			StatusCode: http.StatusBadRequest,
@@ -46,11 +56,7 @@ func (uc *AuthUseCase) RegisterByPass(ctx *gin.Context, request *requests.Regist
 	}
 
 	if err := uc.authRepo.RegisterByPass(ctx, newUser); err != nil {
-		return &errors2.ErrorWrapper{
-			Context:    ctx,
-			Err:        err,
-			StatusCode: http.StatusInternalServerError,
-		}
+		return err
 	}
 
 	return nil
@@ -68,7 +74,7 @@ func (uc *AuthUseCase) LoginByPass(ctx *gin.Context, request *requests.LoginRequ
 	}
 
 	if passwordPassed == false {
-		return nil, &errors2.ErrorWrapper{
+		return nil, &messages.ErrorWrapper{
 			StatusCode: http.StatusBadRequest,
 			Err:        errors.New("Wrong Credentials"),
 		}

@@ -17,17 +17,17 @@ func migrate(ctx *gin.Context) {
 	if ctx.Query("key") == os.Getenv("MIGRATE_KEY") {
 		err := migration.Migrate()
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, responses.BasicResponse{
+			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 				//Message: "Error Migrate",
 				Error: err,
 			})
 		} else {
-			ctx.JSON(http.StatusOK, responses.BasicResponse{
+			ctx.JSON(http.StatusOK, responses.SuccessResponse{
 				//Message: "Success Migrate",
 			})
 		}
 	} else {
-		ctx.JSON(http.StatusUnauthorized, responses.BasicResponse{
+		ctx.JSON(http.StatusUnauthorized, responses.ErrorResponse{
 			//Message: "Error Migrate (Unauthorized)",
 			Error: errors.New("Unauthorized"),
 		})

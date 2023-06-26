@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"go-clean/domains/users/entities"
-	errors2 "go-clean/models/messages"
+	"go-clean/models/messages"
 	"net/http"
 	"time"
 
@@ -45,8 +45,8 @@ func (repo AuthRepository) GenerateTokenUser(ctx *gin.Context, user *entities.Us
 	}
 
 	err := repo.db.WithContext(ctx).Save(&jwtToken).Error
-	if errors2.HasError(err) {
-		return nil, &errors2.ErrorWrapper{
+	if messages.HasError(err) {
+		return nil, &messages.ErrorWrapper{
 			Context:    ctx,
 			Err:        err,
 			StatusCode: http.StatusInternalServerError,

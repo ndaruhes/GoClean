@@ -37,7 +37,7 @@ func NewAuthHttp(route *gin.Engine) *AuthHttp {
 func (handler *AuthHttp) RegisterWithEmailPassword(ctx *gin.Context) {
 	request := &requests.RegisterWithEmailPasswordRequest{}
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		messages.SendErrorResponse(ctx, responses.BasicResponse{
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
 		})
@@ -45,7 +45,7 @@ func (handler *AuthHttp) RegisterWithEmailPassword(ctx *gin.Context) {
 	}
 
 	if err := validators.ValidateStruct(ctx, request); err != nil {
-		messages.SendErrorResponse(ctx, responses.BasicResponse{
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
 		})
@@ -54,36 +54,34 @@ func (handler *AuthHttp) RegisterWithEmailPassword(ctx *gin.Context) {
 
 	err := handler.authUc.RegisterByPass(ctx, request)
 	if err != nil {
-		messages.SendErrorResponse(ctx, responses.BasicResponse{
-			Error:       err,
-			MessageCode: "ERROR-400003",
-			StatusCode:  http.StatusBadRequest,
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			Error: err,
 		})
 		return
 	}
 
-	messages.SendSuccessResponse(ctx, responses.BasicResponse{
-		MessageCode: "SUCCESS-0001",
+	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		SuccessCode: "SUCCESS-0001",
 	})
 }
 
 func (handler *AuthHttp) LoginByPass(ctx *gin.Context) {
 	request := &requests.LoginRequest{}
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, responses.BasicResponse{
+		ctx.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Error: err,
 		})
 	}
 
 	if err := validators.ValidateStruct(ctx, request); err != nil {
-		ctx.JSON(http.StatusBadRequest, responses.BasicResponse{
+		ctx.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Error: err,
 		})
 	}
 
 	res, err := handler.authUc.LoginByPass(ctx, request)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, responses.BasicResponse{
+		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Error: err,
 		})
 	}

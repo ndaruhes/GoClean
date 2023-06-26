@@ -1,10 +1,16 @@
 package responses
 
-type BasicResponse struct {
+type SuccessResponse struct {
 	StatusCode  int
-	Error       error
-	MessageCode string
+	SuccessCode string
 	Data        interface{}
+}
+
+type ErrorResponse struct {
+	StatusCode int
+	Error      error
+	ErrorCode  string
+	Data       interface{}
 }
 
 type TokenDecoded struct {

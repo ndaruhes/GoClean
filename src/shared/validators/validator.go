@@ -133,7 +133,6 @@ func (inject *injection) validateExists(fl validator.FieldLevel) bool {
 	ctx := context.Background().(*gin.Context)
 	value := fl.Field().Interface()
 	slices := strings.Split(fl.Param(), ";")
-	validated := true
 
 	if fl.Field().Kind() == reflect.Slice {
 		switch value.(type) {
@@ -155,11 +154,10 @@ func (inject *injection) validateExists(fl validator.FieldLevel) bool {
 		return value == "" || exists(ctx, inject.db, slices, value)
 	}
 
-	return validated
+	return true
 }
 
 func (inject *injection) validateUniqueEmail(fl validator.FieldLevel) bool {
-	ctx := context.Background().(*gin.Context)
 	email := fl.Field().Interface().(string)
 	slices := strings.Split(fl.Param(), ";")
 
@@ -179,26 +177,22 @@ func (inject *injection) validateUniqueEmail(fl validator.FieldLevel) bool {
 		}
 	}
 
-	var count1, count2 int64
+	var count int64
 
 	if email == "" {
 		return false
 	}
 
-	res := inject.db.WithContext(ctx).Table("employers").Where("email = ?", email).Where("deleted_at is null")
-	res2 := inject.db.WithContext(ctx).Table("talents").Where("email = ?", email).Where("deleted_at is null")
+	ctx := context.Background()
+	res := inject.db.WithContext(ctx).Table("users").Where("email = ?", email).Where("deleted_at is null")
 
 	if except != "" {
 		res = res.Where(fmt.Sprintf("%s != ?", slices[0]), except)
-		res2 = res2.Where(fmt.Sprintf("%s != ?", slices[0]), except)
 	}
 
-	if err := res.Count(&count1).Error; errors2.HasError(err) {
-		return false
-	}
-	if err := res2.Count(&count2).Error; errors2.HasError(err) {
+	if err := res.Count(&count).Error; errors2.HasError(err) {
 		return false
 	}
 
-	return (count1 + count2) == 0
+	return count == 0
 }
