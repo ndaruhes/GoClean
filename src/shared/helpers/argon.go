@@ -11,27 +11,33 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-func GeneratePassword(c *requests.PasswordConfig, password string) (string, error) {
+var passConfig = &requests.PasswordConfig{
+	Time:    1,
+	Memory:  64 * 1024,
+	Threads: 4,
+	KeyLen:  32,
+}
+
+func GeneratePassword(password string) (string, error) {
 	salt := make([]byte, 16)
 	if _, err := rand.Read(salt); err != nil {
 		return "", err
 	}
 
-	hash := argon2.IDKey([]byte(password), salt, c.Time, c.Memory, c.Threads, c.KeyLen)
+	hash := argon2.IDKey([]byte(password), salt, passConfig.Time, passConfig.Memory, passConfig.Threads, passConfig.KeyLen)
 
 	b64Salt := base64.RawStdEncoding.EncodeToString(salt)
 	b64Hash := base64.RawStdEncoding.EncodeToString(hash)
 
 	format := "$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s"
-	full := fmt.Sprintf(format, argon2.Version, c.Memory, c.Time, c.Threads, b64Salt, b64Hash)
+	full := fmt.Sprintf(format, argon2.Version, passConfig.Memory, passConfig.Time, passConfig.Threads, b64Salt, b64Hash)
 	return full, nil
 }
 
-func VerifyPassword(password, hash string) (bool, error) {
+func ComparePassword(password, hash string) (bool, error) {
 	parts := strings.Split(hash, "$")
 
-	c := &requests.PasswordConfig{}
-	_, err := fmt.Sscanf(parts[3], "m=%d,t=%d,p=%d", &c.Memory, &c.Time, &c.Threads)
+	_, err := fmt.Sscanf(parts[3], "m=%d,t=%d,p=%d", &passConfig.Memory, &passConfig.Time, &passConfig.Threads)
 	if err != nil {
 		return false, err
 	}
@@ -45,9 +51,9 @@ func VerifyPassword(password, hash string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	c.KeyLen = uint32(len(decodedHash))
+	passConfig.KeyLen = uint32(len(decodedHash))
 
-	comparisonHash := argon2.IDKey([]byte(password), salt, c.Time, c.Memory, c.Threads, c.KeyLen)
+	comparisonHash := argon2.IDKey([]byte(password), salt, passConfig.Time, passConfig.Memory, passConfig.Threads, passConfig.KeyLen)
 
-	return (subtle.ConstantTimeCompare(decodedHash, comparisonHash) == 1), nil
+	return subtle.ConstantTimeCompare(decodedHash, comparisonHash) == 1, nil
 }

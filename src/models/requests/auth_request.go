@@ -10,11 +10,11 @@ type LoginOAuthRequest struct {
 }
 
 type RegisterWithEmailPasswordRequest struct {
-	Name                 string `json:"name"`
-	Email                string `json:"email"`
-	PhoneNumber          string `json:"phoneNumber"`
-	Password             string `json:"password"`
-	ConfirmationPassword string `json:"confirmationPassword"`
+	Name                 string `json:"name" validate:"required"`
+	Email                string `json:"email" validate:"required"`
+	PhoneNumber          string `json:"phoneNumber" validate:"required"`
+	Password             string `json:"password" validate:"required"`
+	ConfirmationPassword string `json:"confirmationPassword" validate:"required,eqfield=Password"`
 }
 
 type PasswordConfig struct {

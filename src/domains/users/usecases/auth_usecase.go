@@ -1,11 +1,12 @@
 package usecases
 
 import (
+	"errors"
 	"go-clean/domains/users"
 	"go-clean/domains/users/entities"
+	errors2 "go-clean/models/messages"
 	"go-clean/models/requests"
 	"go-clean/models/responses"
-	errors2 "go-clean/shared/errors"
 	"go-clean/shared/helpers"
 	"go-clean/shared/validators"
 	"net/http"
@@ -23,14 +24,8 @@ func NewAuthUseCase(authRepo users.AuthRepository) *AuthUseCase {
 	}
 }
 
-func (uc *AuthUseCase) RegisterWithEmailPassword(ctx *gin.Context, request *requests.RegisterWithEmailPasswordRequest) error {
-	passConfig := &requests.PasswordConfig{
-		Time:    1,
-		Memory:  64 * 1024,
-		Threads: 4,
-		KeyLen:  32,
-	}
-	hashPassword, err := helpers.GeneratePassword(passConfig, request.Password)
+func (uc *AuthUseCase) RegisterByPass(ctx *gin.Context, request *requests.RegisterWithEmailPasswordRequest) error {
+	hashPassword, err := helpers.GeneratePassword(request.Password)
 	if err != nil {
 		return err
 	}
@@ -50,7 +45,7 @@ func (uc *AuthUseCase) RegisterWithEmailPassword(ctx *gin.Context, request *requ
 		}
 	}
 
-	if err := uc.authRepo.RegisterWithEmailPassword(ctx, newUser); err != nil {
+	if err := uc.authRepo.RegisterByPass(ctx, newUser); err != nil {
 		return &errors2.ErrorWrapper{
 			Context:    ctx,
 			Err:        err,
@@ -61,7 +56,35 @@ func (uc *AuthUseCase) RegisterWithEmailPassword(ctx *gin.Context, request *requ
 	return nil
 }
 
-func (uc *AuthUseCase) Login(ctx *gin.Context, request *requests.LoginRequest) (*responses.LoginResponse, error) {
-	//TODO implement me
-	panic("implement me")
+func (uc *AuthUseCase) LoginByPass(ctx *gin.Context, request *requests.LoginRequest) (*responses.LoginResponse, error) {
+	user, err := uc.authRepo.FindByEmail(ctx, request.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	passwordPassed, err := helpers.ComparePassword(request.Password, user.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	if passwordPassed == false {
+		return nil, &errors2.ErrorWrapper{
+			StatusCode: http.StatusBadRequest,
+			Err:        errors.New("Wrong Credentials"),
+		}
+	}
+
+	token, err := helpers.GenerateToken(user.ID, user.Email, user.Role)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = uc.authRepo.GenerateTokenUser(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &responses.LoginResponse{
+		TokenID: token,
+	}, nil
 }

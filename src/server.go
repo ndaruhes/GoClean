@@ -18,18 +18,18 @@ func migrate(ctx *gin.Context) {
 		err := migration.Migrate()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, responses.BasicResponse{
-				Message: "Error Migrate",
-				Error:   err,
+				//Message: "Error Migrate",
+				Error: err,
 			})
 		} else {
 			ctx.JSON(http.StatusOK, responses.BasicResponse{
-				Message: "Success Migrate",
+				//Message: "Success Migrate",
 			})
 		}
 	} else {
 		ctx.JSON(http.StatusUnauthorized, responses.BasicResponse{
-			Message: "Error Migrate (Unauthorized)",
-			Error:   errors.New("Unauthorized"),
+			//Message: "Error Migrate (Unauthorized)",
+			Error: errors.New("Unauthorized"),
 		})
 	}
 }

@@ -9,12 +9,12 @@ import (
 )
 
 type User struct {
-	ID   string `json:"id" gorm:"primaryKey;type:varchar(255)"`
-	Name string `json:"name" gorm:"type:varchar(255)"`
-	//Email    string  `json:"email" gorm:"unique,type:varchar(255)" validate:"unique_email=id"`
+	ID       string  `json:"id" gorm:"primaryKey;type:varchar(255)"`
+	Name     string  `json:"name" gorm:"type:varchar(255)"`
 	Email    string  `json:"email" gorm:"index:email,unique,type:varchar(255)"`
 	Password string  `json:"password" gorm:"type:varchar(255)"`
-	GoogleID *string `json:"google_id" gorm:"unique,type:varchar(255)"`
+	GoogleID *string `json:"google_id" gorm:"index:google_id,unique,type:varchar(255)"`
+	Role     string  `json:"role" gorm:"type:enum('Admin', 'Member');default:'Member';not null"`
 	entities.Timestamp
 }
 

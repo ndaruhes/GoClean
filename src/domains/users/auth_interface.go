@@ -9,13 +9,13 @@ import (
 )
 
 type AuthUseCase interface {
-	Login(ctx *gin.Context, request *requests.LoginRequest) (*responses.LoginResponse, error)
-	RegisterWithEmailPassword(ctx *gin.Context, request *requests.RegisterWithEmailPasswordRequest) error
+	LoginByPass(ctx *gin.Context, request *requests.LoginRequest) (*responses.LoginResponse, error)
+	RegisterByPass(ctx *gin.Context, request *requests.RegisterWithEmailPasswordRequest) error
 }
 
 type AuthRepository interface {
-	RegisterWithEmailPassword(ctx *gin.Context, user *entities.User) error
+	RegisterByPass(ctx *gin.Context, user *entities.User) error
 	FindUserByOAuthTokenId(ctx *gin.Context, tokenId string) (*entities.User, error)
-	FindByEmail(email string) (*entities.User, error)
-	GenerateToken(ctx *gin.Context, user *entities.User) (*entities.OAuthToken, error)
+	FindByEmail(ctx *gin.Context, email string) (*entities.User, error)
+	GenerateTokenUser(ctx *gin.Context, user *entities.User) (*entities.OAuthToken, error)
 }

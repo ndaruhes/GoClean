@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	errors2 "go-clean/shared/errors"
+	errors2 "go-clean/models/messages"
 	"go-clean/shared/validators/lang"
 	"reflect"
 	"strings"
