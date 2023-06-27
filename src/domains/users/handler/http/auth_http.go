@@ -44,9 +44,10 @@ func (handler *AuthHttp) RegisterWithEmailPassword(ctx *gin.Context) {
 		return
 	}
 
-	if err := validators.ValidateStruct(ctx, request); err != nil {
+	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error:      err,
+			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
 		})
 		return
@@ -75,9 +76,10 @@ func (handler *AuthHttp) LoginByPass(ctx *gin.Context) {
 		return
 	}
 
-	if err := validators.ValidateStruct(ctx, request); err != nil {
+	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error:      err,
+			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
 		})
 		return

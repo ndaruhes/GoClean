@@ -3,10 +3,10 @@ package validators
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	errors2 "go-clean/models/messages"
+	"go-clean/models/messages"
 	"go-clean/shared/validators/lang"
+	"net/http"
 	"reflect"
 	"strings"
 
@@ -28,7 +28,7 @@ type injection struct {
 	ctx     *gin.Context
 }
 
-func ValidateStruct(ctx *gin.Context, payload interface{}) error {
+func ValidateStruct(ctx *gin.Context, payload interface{}) (map[string][]string, error) {
 	validate := validator.New()
 	registerTagName(validate)
 	trans := registerLanguage(validate, ctx.Value("lang").(string))
@@ -43,16 +43,25 @@ func ValidateStruct(ctx *gin.Context, payload interface{}) error {
 	validate.RegisterValidation("unique_email", inject.validateUniqueEmail)
 
 	err := validate.Struct(payload)
-	if err == nil {
-		return nil
+	if err != nil {
+		formErrors := make(map[string][]string)
+		validationErrors := err.(validator.ValidationErrors)
+		for _, e := range validationErrors {
+			field := e.Field()
+			message := e.Translate(trans)
+			formErrors[field] = append(formErrors[field], message)
+		}
+
+		if len(formErrors) > 0 {
+			return formErrors, &messages.ErrorWrapper{
+				Context:    ctx,
+				ErrorCode:  "ERROR-400003",
+				StatusCode: http.StatusBadRequest,
+			}
+		}
 	}
 
-	validationErrors := err.(validator.ValidationErrors)
-	for _, e := range validationErrors {
-		return errors.New(e.Translate(trans))
-	}
-
-	return nil
+	return nil, nil
 }
 
 func registerLanguage(validate *validator.Validate, language string) ut.Translator {
@@ -190,7 +199,7 @@ func (inject *injection) validateUniqueEmail(fl validator.FieldLevel) bool {
 		res = res.Where(fmt.Sprintf("%s != ?", slices[0]), except)
 	}
 
-	if err := res.Count(&count).Error; errors2.HasError(err) {
+	if err := res.Count(&count).Error; messages.HasError(err) {
 		return false
 	}
 

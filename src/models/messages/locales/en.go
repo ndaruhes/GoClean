@@ -1,17 +1,23 @@
 package locales
 
-// === SUCCESS MESSAGE ===
+// === BASIC MESSAGES ===
+var BasicEN = map[string]string{
+	"BASIC-0001": "Upps, something went wrong",
+}
+
+// === SUCCESS MESSAGES ===
 var SuccessEN = map[string]string{
 	// AUTH LISTS
 	"SUCCESS-0001": "Register successfully",
 	"SUCCESS-0002": "Login successfully",
 }
 
-// === ERROR MESSAGE ===
+// === ERROR MESSAGES ===
 var ErrorEN = map[string]string{
 	// ERROR 400 LISTS
 	"ERROR-400001": "User has been activated",
 	"ERROR-400002": "You have completed your profile",
+	"ERROR-400003": "Please fill form correctly",
 
 	// ERROR 401 LISTS
 	"ERROR-401001": "Email has already registered",

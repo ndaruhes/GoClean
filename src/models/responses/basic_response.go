@@ -10,6 +10,7 @@ type ErrorResponse struct {
 	Error      error
 	ErrorCode  string
 	StatusCode int
+	FormErrors map[string][]string
 	Data       interface{}
 }
 

@@ -47,7 +47,7 @@ func (uc *AuthUseCase) RegisterByPass(ctx *gin.Context, request *requests.Regist
 		GoogleID: nil,
 	}
 
-	if err := validators.ValidateStruct(ctx, newUser); err != nil {
+	if _, err := validators.ValidateStruct(ctx, newUser); err != nil {
 		return &messages.ErrorWrapper{
 			Context:    ctx,
 			Err:        err,

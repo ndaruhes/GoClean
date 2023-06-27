@@ -1,11 +1,10 @@
 package messages
 
 import (
+	"github.com/gin-gonic/gin"
 	"go-clean/models/messages/locales"
 	"go-clean/models/responses"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 var SuccessCodes = map[string]map[string]string{
@@ -50,10 +49,6 @@ func SendSuccessResponse(ctx *gin.Context, successResponse responses.SuccessResp
 }
 
 func SendErrorResponse(ctx *gin.Context, errorResponse responses.ErrorResponse) {
-	if errorResponse.StatusCode == 0 {
-		errorResponse.StatusCode = http.StatusInternalServerError
-	}
-
 	if HasError(errorResponse.Error) {
 		switch errorResponse.Error.(type) {
 		case *ErrorWrapper:
@@ -61,6 +56,14 @@ func SendErrorResponse(ctx *gin.Context, errorResponse responses.ErrorResponse) 
 			if err != nil {
 				lang := ctx.Value("lang").(string)
 				var message string
+
+				if errorResponse.StatusCode == 0 {
+					errorResponse.StatusCode = http.StatusInternalServerError
+				}
+
+				if err.StatusCode == 0 {
+					err.StatusCode = http.StatusInternalServerError
+				}
 
 				if (err.ErrorCode != "") && (ErrorCodes[lang] == nil || ErrorCodes[lang][err.ErrorCode] == "") {
 					ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
@@ -81,6 +84,10 @@ func SendErrorResponse(ctx *gin.Context, errorResponse responses.ErrorResponse) 
 
 				if err.ErrorCode != "" {
 					body["message"] = message
+				}
+
+				if len(errorResponse.FormErrors) > 0 {
+					body["formErrors"] = errorResponse.FormErrors
 				}
 
 				ctx.JSON(err.StatusCode, body)

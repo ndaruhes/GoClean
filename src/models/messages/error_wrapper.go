@@ -2,6 +2,7 @@ package messages
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-clean/models/messages/locales"
 )
 
 type ErrorWrapper struct {
@@ -12,9 +13,15 @@ type ErrorWrapper struct {
 	StatusCode int
 }
 
+var BasicCodes = map[string]map[string]string{
+	"en": locales.BasicEN,
+	"id": locales.BasicID,
+}
+
 func (wrapper *ErrorWrapper) Error() string {
+	lang := wrapper.Context.Value("lang").(string)
 	if wrapper.Err == nil || wrapper.ErrorCode == "" {
-		return "Something went wrong"
+		return BasicCodes[lang]["BASIC-0001"]
 	}
 	return wrapper.Err.Error()
 }
