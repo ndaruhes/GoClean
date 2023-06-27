@@ -1,11 +1,10 @@
 package main
 
 import (
-	"errors"
 	users "go-clean/domains/users/handler/http"
 	"go-clean/middlewares"
+	"go-clean/models/messages"
 	"go-clean/models/responses"
-	"net/http"
 	"os"
 
 	"go-clean/configs/migration"
@@ -17,19 +16,17 @@ func migrate(ctx *gin.Context) {
 	if ctx.Query("key") == os.Getenv("MIGRATE_KEY") {
 		err := migration.Migrate()
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-				//Message: "Error Migrate",
-				Error: err,
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				ErrorCode: "ERROR-50001",
 			})
 		} else {
-			ctx.JSON(http.StatusOK, responses.SuccessResponse{
-				//Message: "Success Migrate",
+			messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+				SuccessCode: "SUCCESS-0003",
 			})
 		}
 	} else {
-		ctx.JSON(http.StatusUnauthorized, responses.ErrorResponse{
-			//Message: "Error Migrate (Unauthorized)",
-			Error: errors.New("Unauthorized"),
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			ErrorCode: "ERROR-50002",
 		})
 	}
 }

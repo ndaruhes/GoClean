@@ -10,6 +10,9 @@ var SuccessID = map[string]string{
 	// AUTH LISTS
 	"SUCCESS-0001": "Pendaftaran berhasil",
 	"SUCCESS-0002": "Login berhasil",
+
+	//	DATABASE LIST
+	"SUCCESS-0003": "Sukses migrasi database",
 }
 
 // === ERROR MESSAGES ===
@@ -23,4 +26,8 @@ var ErrorID = map[string]string{
 	"ERROR-401001": "Email sudah terdaftar",
 	"ERROR-401002": "Anda belum terdaftar",
 	"ERROR-401003": "Kredensial tidak cocok",
+
+	//	ERROR 500 LISTS
+	"ERROR-50001": "Gagal migrasi database",
+	"ERROR-50002": "Migrate key tidak valid",
 }

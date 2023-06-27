@@ -10,6 +10,9 @@ var SuccessEN = map[string]string{
 	// AUTH LISTS
 	"SUCCESS-0001": "Register successfully",
 	"SUCCESS-0002": "Login successfully",
+
+	//	DATABASE LIST
+	"SUCCESS-0003": "Success migrate database",
 }
 
 // === ERROR MESSAGES ===
@@ -23,4 +26,8 @@ var ErrorEN = map[string]string{
 	"ERROR-401001": "Email has already registered",
 	"ERROR-401002": "You are not registered",
 	"ERROR-401003": "Credentials doesn't match",
+
+	//	ERROR 500 LISTS
+	"ERROR-50001": "Failed to migrate database",
+	"ERROR-50002": "Migrate key doesn't valid",
 }
