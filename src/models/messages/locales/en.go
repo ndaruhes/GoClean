@@ -8,11 +8,14 @@ var BasicEN = map[string]string{
 // === SUCCESS MESSAGES ===
 var SuccessEN = map[string]string{
 	// AUTH LISTS
-	"SUCCESS-0001": "Register successfully",
-	"SUCCESS-0002": "Login successfully",
+	"SUCCESS-AUTH-0001": "Register successfully",
+	"SUCCESS-AUTH-0002": "Login successfully",
 
-	//	DATABASE LIST
-	"SUCCESS-0003": "Success migrate database",
+	//	DATABASE LISTS
+	"SUCCESS-DB-0001": "Success migrate database",
+
+	//	BLOG LISTS
+	"SUCCESS-BLOG-0001": "Blog created successfully",
 }
 
 // === ERROR MESSAGES ===

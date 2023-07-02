@@ -1,10 +1,12 @@
 package main
 
 import (
+	blogs "go-clean/domains/blogs/handler/http"
 	users "go-clean/domains/users/handler/http"
 	"go-clean/middlewares"
 	"go-clean/models/messages"
 	"go-clean/models/responses"
+	"net/http"
 	"os"
 
 	"go-clean/configs/migration"
@@ -17,16 +19,16 @@ func migrate(ctx *gin.Context) {
 		err := migration.Migrate()
 		if err != nil {
 			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				ErrorCode: "ERROR-50001",
+				StatusCode: http.StatusInternalServerError,
 			})
 		} else {
 			messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-				SuccessCode: "SUCCESS-0003",
+				SuccessCode: "SUCCESS-DB-0001",
 			})
 		}
 	} else {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
-			ErrorCode: "ERROR-50002",
+			StatusCode: http.StatusInternalServerError,
 		})
 	}
 }
@@ -38,4 +40,5 @@ func RegisterMiddlewares(router *gin.Engine) {
 func RegisterRoutes(router *gin.Engine) {
 	router.GET("/migrate", migrate)
 	users.NewAuthHttp(router)
+	blogs.NewBlogHttp(router)
 }

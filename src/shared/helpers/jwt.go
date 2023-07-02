@@ -49,7 +49,7 @@ func VerifyToken(ctx *gin.Context) (*responses.TokenDecoded, error) {
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return &responses.TokenDecoded{
-			ID:    int(claims["id"].(float64)),
+			ID:    claims["id"].(string),
 			Email: claims["email"].(string),
 			Role:  claims["role"].(string),
 		}, nil

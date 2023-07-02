@@ -10,11 +10,11 @@ import (
 )
 
 type OAuthToken struct {
-	ID        string    `json:"id" gorm:"primaryKey,type:varchar(255)"`
+	ID        string    `json:"id" gorm:"primaryKey,type:varchar(255);not null"`
+	UserID    string    `json:"user_id" gorm:"type:varchar(255);not null"`
+	ExpiresAt time.Time `json:"expires_at" gorm:"not null"`
+	Revoked   bool      `json:"revoked" gorm:"default:0;not null"`
 	User      User      `json:"user"`
-	UserID    string    `json:"user_id" gorm:"type:varchar(255)"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Revoked   bool      `json:"revoked" gorm:"default:0"`
 	entities.Timestamp
 }
 

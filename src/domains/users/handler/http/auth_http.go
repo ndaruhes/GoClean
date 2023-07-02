@@ -62,7 +62,7 @@ func (handler *AuthHttp) RegisterWithEmailPassword(ctx *gin.Context) {
 	}
 
 	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-		SuccessCode: "SUCCESS-0001",
+		SuccessCode: "SUCCESS-AUTH-0001",
 	})
 }
 
@@ -94,7 +94,7 @@ func (handler *AuthHttp) LoginByPass(ctx *gin.Context) {
 	}
 
 	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-		SuccessCode: "SUCCESS-0002",
+		SuccessCode: "SUCCESS-AUTH-0002",
 		Data:        data,
 	})
 }

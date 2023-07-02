@@ -8,14 +8,13 @@ type SuccessResponse struct {
 
 type ErrorResponse struct {
 	Error      error
-	ErrorCode  string
 	StatusCode int
 	FormErrors map[string][]string
 	Data       interface{}
 }
 
 type TokenDecoded struct {
-	ID    int    `json:"id"`
+	ID    string `json:"id"`
 	Email string `json:"email"`
 	Role  string `json:"role"`
 }
