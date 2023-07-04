@@ -9,37 +9,6 @@ import (
 	"path/filepath"
 )
 
-//func UploadSingleFile(ctx *gin.Context, key string, targetDir string) (string, error) {
-//	var file, header, err = ctx.Request.FormFile(key)
-//
-//	fileExt := filepath.Ext(header.Filename)
-//	originalFileName := strings.TrimSuffix(filepath.Base(header.Filename), filepath.Ext(header.Filename))
-//	now := time.Now().UTC()
-//	fileName := strings.ReplaceAll(strings.ToLower(originalFileName), " ", "-") + "-" + fmt.Sprintf("%v", now.Unix()) + fileExt
-//
-//	if err := MakeDirectory("public/" + targetDir); err != nil {
-//		return "", err
-//	}
-//
-//	out, err := os.Create("public/" + targetDir + fileName)
-//	if err != nil {
-//		return "", err
-//	}
-//	defer func(out *os.File) {
-//		err := out.Close()
-//		if err != nil {
-//			return
-//		}
-//	}(out)
-//
-//	_, err = io.Copy(out, file)
-//	if err != nil {
-//		return "", err
-//	}
-//
-//	return fileName, nil
-//}
-
 func UploadSingleFile(file []byte, fileName string, targetDir string) error {
 	if err := MakeDirectory("public/" + targetDir); err != nil {
 		return err

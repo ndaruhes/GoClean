@@ -9,6 +9,7 @@ import (
 	"go-clean/models/messages"
 	"go-clean/models/requests"
 	"go-clean/models/responses"
+	"go-clean/models/validations"
 	"go-clean/shared/utils"
 	"go-clean/shared/validators"
 	"net/http"
@@ -59,7 +60,6 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 	}
 
 	header, err := ctx.FormFile("cover")
-	//var oke, header, err = ctx.Request.FormFile("cover")
 	if messages.HasError(err) {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -68,21 +68,21 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 		return
 	}
 
-	//err = validators.ValidateImage(header, validations.ImageValidation{
-	//	MaxSize:   2,
-	//	MinWidth:  300,
-	//	MaxWidth:  640,
-	//	MinHeight: 300,
-	//	MaxHeight: 640,
-	//	Format:    []string{"jpeg", "png", "jpg"},
-	//})
-	//if messages.HasError(err) {
-	//	messages.SendErrorResponse(ctx, responses.ErrorResponse{
-	//		StatusCode: http.StatusBadRequest,
-	//		Error:      err,
-	//	})
-	//	return
-	//}
+	err = validators.ValidateImage(header, validations.ImageValidation{
+		MaxSize:   2,
+		MinWidth:  300,
+		MaxWidth:  640,
+		MinHeight: 300,
+		MaxHeight: 640,
+		Format:    []string{"jpeg", "png", "jpg"},
+	})
+	if messages.HasError(err) {
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Error:      err,
+		})
+		return
+	}
 
 	file, err := utils.MultipartFileHeaderToByte(header)
 	if messages.HasError(err) {
@@ -94,6 +94,7 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 	}
 
 	fileName := strings.ToUpper(xid.New().String()) + "-" + header.Filename
+
 	if err := handler.blogUc.CreateBlog(ctx, request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
