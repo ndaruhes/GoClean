@@ -8,9 +8,11 @@ require (
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.14.1
 	github.com/golang-jwt/jwt/v5 v5.0.0
+	github.com/h2non/bimg v1.1.9
 	github.com/rs/xid v1.5.0
 	github.com/spf13/viper v1.16.0
 	golang.org/x/crypto v0.10.0
+	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.1
 )

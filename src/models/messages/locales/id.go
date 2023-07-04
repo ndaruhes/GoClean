@@ -1,18 +1,19 @@
 package locales
 
-// === BASIC MESSAGES ===
-var BasicID = map[string]string{
-	"BASIC-0001": "Upps, terjadi kesalahan",
-}
-
 // === SUCCESS MESSAGES ===
 var SuccessID = map[string]string{
+	// BASIC LISTS
+	"SUCCESS-BASIC-0001": "Mantepp Bro",
+
 	// AUTH LISTS
 	"SUCCESS-AUTH-0001": "Pendaftaran berhasil",
 	"SUCCESS-AUTH-0002": "Login berhasil",
 
 	//	DATABASE LISTS
 	"SUCCESS-DB-0001": "Sukses migrasi database",
+
+	//	BLOG LISTS
+	"SUCCESS-BLOG-0001": "Blog berhasil dibuat",
 }
 
 // === ERROR MESSAGES ===
@@ -30,4 +31,5 @@ var ErrorID = map[string]string{
 	//	ERROR 500 LISTS
 	"ERROR-50001": "Gagal migrasi database",
 	"ERROR-50002": "Migrate key tidak valid",
+	"ERROR-50003": "Upps, terjadi kesalahan",
 }

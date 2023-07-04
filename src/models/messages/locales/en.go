@@ -1,12 +1,10 @@
 package locales
 
-// === BASIC MESSAGES ===
-var BasicEN = map[string]string{
-	"BASIC-0001": "Upps, something went wrong",
-}
-
 // === SUCCESS MESSAGES ===
 var SuccessEN = map[string]string{
+	//BASIC LISTS
+	"SUCCESS-BASIC-0001": "Good Job Bro",
+
 	// AUTH LISTS
 	"SUCCESS-AUTH-0001": "Register successfully",
 	"SUCCESS-AUTH-0002": "Login successfully",
@@ -33,4 +31,5 @@ var ErrorEN = map[string]string{
 	//	ERROR 500 LISTS
 	"ERROR-50001": "Failed to migrate database",
 	"ERROR-50002": "Migrate key doesn't valid",
+	"ERROR-50003": "Upps, something went wrong",
 }

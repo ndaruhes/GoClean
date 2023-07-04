@@ -38,6 +38,13 @@ func RegisterMiddlewares(router *gin.Engine) {
 }
 
 func RegisterRoutes(router *gin.Engine) {
+	router.GET("/", func(ctx *gin.Context) {
+		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+			SuccessCode: "SUCCESS-BASIC-0001",
+			StatusCode:  http.StatusOK,
+		})
+	})
+	router.Static("/images", "./public/images")
 	router.GET("/migrate", migrate)
 	users.NewAuthHttp(router)
 	blogs.NewBlogHttp(router)

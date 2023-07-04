@@ -9,10 +9,13 @@ import (
 	"go-clean/models/messages"
 	"go-clean/models/requests"
 	"go-clean/models/responses"
+	"go-clean/shared/utils"
 	"go-clean/shared/validators"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/xid"
 )
 
 type BlogHttp struct {
@@ -34,8 +37,11 @@ func NewBlogHttp(route *gin.Engine) *BlogHttp {
 }
 
 func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
-	request := &requests.UpsertBlogRequest{}
-	if err := ctx.ShouldBindJSON(&request); err != nil {
+	request := &requests.UpsertBlogRequest{
+		Title:   ctx.PostForm("title"),
+		Content: ctx.PostForm("content"),
+	}
+	if err := ctx.ShouldBind(&request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
@@ -52,8 +58,43 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 		return
 	}
 
-	err := handler.blogUc.CreateBlog(ctx, request)
-	if err != nil {
+	header, err := ctx.FormFile("cover")
+	//var oke, header, err = ctx.Request.FormFile("cover")
+	if messages.HasError(err) {
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Error:      err,
+		})
+		return
+	}
+
+	//err = validators.ValidateImage(header, validations.ImageValidation{
+	//	MaxSize:   2,
+	//	MinWidth:  300,
+	//	MaxWidth:  640,
+	//	MinHeight: 300,
+	//	MaxHeight: 640,
+	//	Format:    []string{"jpeg", "png", "jpg"},
+	//})
+	//if messages.HasError(err) {
+	//	messages.SendErrorResponse(ctx, responses.ErrorResponse{
+	//		StatusCode: http.StatusBadRequest,
+	//		Error:      err,
+	//	})
+	//	return
+	//}
+
+	file, err := utils.MultipartFileHeaderToByte(header)
+	if messages.HasError(err) {
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Error:      err,
+		})
+		return
+	}
+
+	fileName := strings.ToUpper(xid.New().String()) + "-" + header.Filename
+	if err := handler.blogUc.CreateBlog(ctx, request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})

@@ -27,11 +27,11 @@ func (uc BlogUseCase) GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlog
 	panic("implement me")
 }
 
-func (uc BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlogRequest) error {
+func (uc BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
 	user := ctx.Value("member").(*responses.TokenDecoded)
 	newBlog := &entities.Blog{
 		Title:   request.Title,
-		Cover:   request.Cover,
+		Cover:   fileName,
 		Slug:    utils.GenerateSlug(request.Title),
 		Content: request.Content,
 		UserID:  user.ID,
@@ -43,6 +43,16 @@ func (uc BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlogR
 			Err:        err,
 			StatusCode: http.StatusBadRequest,
 		}
+	}
+
+	compressed, err := utils.CompressFile(file, 70)
+	if err != nil {
+		return err
+	}
+
+	err = utils.UploadSingleFile(compressed, fileName, "images/blogs/")
+	if err != nil {
+		return err
 	}
 
 	if err := uc.blogRepo.CreateBlog(ctx, newBlog); err != nil {
