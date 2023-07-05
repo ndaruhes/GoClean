@@ -7,6 +7,7 @@ import (
 	"go-clean/models/messages"
 	"go-clean/models/requests"
 	"go-clean/models/responses"
+	"go-clean/shared/services"
 	"go-clean/shared/utils"
 	"go-clean/shared/validators"
 	"net/http"
@@ -50,10 +51,16 @@ func (uc BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlogR
 		return err
 	}
 
-	err = utils.UploadSingleFile(compressed, fileName, "images/blogs/")
-	if err != nil {
-		return err
+	storageConfig := services.GoogleStorageConfig{
+		Path:     "images/blogs",
+		Filename: fileName,
+		//Bucket:   fileName,
 	}
+
+	//err = utils.UploadSingleFile(compressed, fileName, "images/blogs/")
+	//if err != nil {
+	//	return err
+	//}
 
 	if err := uc.blogRepo.CreateBlog(ctx, newBlog); err != nil {
 		return &messages.ErrorWrapper{

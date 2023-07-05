@@ -14,6 +14,7 @@ var config *Config
 type Config struct {
 	App      App
 	Database Database
+	Google   Google
 }
 
 type App struct {
@@ -32,6 +33,13 @@ type Database struct {
 	Name     string
 	Username string
 	Password string
+}
+
+type Google struct {
+	ClientID             string
+	ClientSecret         string
+	PrivateStorageBucket string
+	PublicStorageBucket  string
 }
 
 func ParseConfig(v *viper.Viper) *Config {
