@@ -14,6 +14,7 @@ var SuccessEN = map[string]string{
 
 	//	BLOG LISTS
 	"SUCCESS-BLOG-0001": "Blog created successfully",
+	"SUCCESS-BLOG-0002": "Blog updated successfully",
 }
 
 // === ERROR MESSAGES ===

@@ -6,29 +6,40 @@ import (
 	"go-clean/models/validations"
 	"golang.org/x/exp/slices"
 	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"mime/multipart"
 )
 
-func ValidateImage(header *multipart.FileHeader, validation validations.ImageValidation) error {
+var imageValidation = &validations.ImageValidation{
+	MaxSize:   2,
+	MinWidth:  300,
+	MaxWidth:  640,
+	MinHeight: 300,
+	MaxHeight: 640,
+	Format:    []string{"jpeg", "png"},
+}
+
+func ValidateImage(header *multipart.FileHeader) error {
 	file, err := header.Open()
 	if err != nil {
 		return err
 	}
 
-	if validation.MaxSize > 0 && float32(header.Size) > validation.MaxSize*1024*1024 {
-		return errors.New(fmt.Sprintf("file size exceeds %f megabytes", validation.MaxSize))
+	if imageValidation.MaxSize > 0 && float32(header.Size) > imageValidation.MaxSize*1024*1024 {
+		return errors.New(fmt.Sprintf("file size exceeds %f megabytes", imageValidation.MaxSize))
 	}
 	img, format, err := image.Decode(file)
 	if err != nil {
 		return err
 	}
 
-	if !slices.Contains(validation.Format, format) {
+	if !slices.Contains(imageValidation.Format, format) {
 		return errors.New("invalid image format")
 	}
 
-	if validation.MinWidth > 0 && img.Bounds().Dx() < validation.MinWidth || validation.MinHeight > 0 && img.Bounds().Dy() < validation.MinHeight || validation.MaxWidth > 0 && img.Bounds().Dx() > validation.MaxWidth || validation.MaxHeight > 0 && img.Bounds().Dy() > validation.MaxHeight {
-		return errors.New(fmt.Sprintf("image size must be between %dx%d and %dx%d", validation.MinWidth, validation.MinHeight, validation.MaxWidth, validation.MaxHeight))
+	if imageValidation.MinWidth > 0 && img.Bounds().Dx() < imageValidation.MinWidth || imageValidation.MinHeight > 0 && img.Bounds().Dy() < imageValidation.MinHeight || imageValidation.MaxWidth > 0 && img.Bounds().Dx() > imageValidation.MaxWidth || imageValidation.MaxHeight > 0 && img.Bounds().Dy() > imageValidation.MaxHeight {
+		return errors.New(fmt.Sprintf("image size must be between %dx%d and %dx%d", imageValidation.MinWidth, imageValidation.MinHeight, imageValidation.MaxWidth, imageValidation.MaxHeight))
 	}
 	return nil
 }

@@ -10,6 +10,7 @@ import (
 type BlogUseCase interface {
 	GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlogListsResponse, error)
 	CreateBlog(ctx *gin.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error
+	UpdateBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
 }
 
 type BlogRepository interface {
