@@ -37,8 +37,6 @@ func NewBlogHttp(route *gin.Engine) *BlogHttp {
 	return handler
 }
 
-func 
-
 func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 	request := &requests.UpsertBlogRequest{
 		Title:   ctx.PostForm("title"),
@@ -89,7 +87,6 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 	}
 
 	fileName := strings.ToUpper(xid.New().String()) + "-" + header.Filename
-
 	if err := handler.blogUc.CreateBlog(ctx, request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
@@ -124,34 +121,40 @@ func (handler *BlogHttp) UpdateBlog(ctx *gin.Context) {
 		return
 	}
 
+	var (
+		file     []byte
+		fileName string
+	)
 	header, err := ctx.FormFile("cover")
-	if messages.HasError(err) {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Error:      err,
-		})
-		return
-	}
+	if header != nil {
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
 
-	err = validators.ValidateImage(header)
-	if messages.HasError(err) {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Error:      err,
-		})
-		return
-	}
+		err = validators.ValidateImage(header)
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
 
-	file, err := utils.MultipartFileHeaderToByte(header)
-	if messages.HasError(err) {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Error:      err,
-		})
-		return
-	}
+		file, err = utils.MultipartFileHeaderToByte(header)
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
 
-	fileName := strings.ToUpper(xid.New().String()) + "-" + header.Filename
+		fileName = strings.ToUpper(xid.New().String()) + "-" + header.Filename
+	}
 
 	if err := handler.blogUc.UpdateBlog(ctx, ctx.Param("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{

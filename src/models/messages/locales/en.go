@@ -29,6 +29,9 @@ var ErrorEN = map[string]string{
 	"ERROR-401002": "You are not registered",
 	"ERROR-401003": "Credentials doesn't match",
 
+	// ERROR 404 LIST
+	"ERROR-404001": "Data not found",
+
 	//	ERROR 500 LISTS
 	"ERROR-50001": "Failed to migrate database",
 	"ERROR-50002": "Migrate key doesn't valid",

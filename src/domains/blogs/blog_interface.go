@@ -16,5 +16,7 @@ type BlogUseCase interface {
 type BlogRepository interface {
 	GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlogListsResponse, error)
 	CreateBlog(ctx *gin.Context, blog *entities.Blog) error
+	UpdateBlog(ctx *gin.Context, blogID string, blog *entities.Blog) error
+	FindBlogById(ctx *gin.Context, id string) (*entities.Blog, error)
 	FindBlogBySlug(ctx *gin.Context, slug string) (*entities.Blog, error)
 }

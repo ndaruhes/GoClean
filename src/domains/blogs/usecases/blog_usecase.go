@@ -50,12 +50,6 @@ func (uc BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlogR
 		return err
 	}
 
-	//storageConfig := services.GoogleStorageConfig{
-	//	Path:     "images/blogs",
-	//	Filename: fileName,
-	//	//Bucket:   fileName,
-	//}
-
 	err = utils.UploadSingleFile(compressed, fileName, "images/blogs/")
 	if err != nil {
 		return err
@@ -73,5 +67,53 @@ func (uc BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlogR
 }
 
 func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
+	user := ctx.Value("member").(*responses.TokenDecoded)
+
+	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
+	if err != nil {
+		return err
+	}
+
+	newBlog := &entities.Blog{
+		Title:   request.Title,
+		Content: request.Content,
+		UserID:  user.ID,
+	}
+
+	if _, err := validators.ValidateStruct(ctx, newBlog); err != nil {
+		return &messages.ErrorWrapper{
+			Context:    ctx,
+			Err:        err,
+			StatusCode: http.StatusBadRequest,
+		}
+	}
+
+	if file != nil && fileName != "" {
+		newBlog.Cover = fileName
+		compressed, err := utils.CompressFile(file, 70)
+		if err != nil {
+			return err
+		}
+
+		err = utils.UploadSingleFile(compressed, fileName, "images/blogs/")
+		if err != nil {
+			return err
+		}
+
+		err = utils.DeleteFile(blog.Cover, "images/blogs/")
+		if err != nil {
+			return err
+		}
+
+	}
+
+	if err := uc.blogRepo.UpdateBlog(ctx, blogID, newBlog); err != nil {
+		return &messages.ErrorWrapper{
+			Context:    ctx,
+			Err:        err,
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+
 	return nil
 }

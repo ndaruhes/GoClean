@@ -1,9 +1,11 @@
 package messages
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"go-clean/models/messages/locales"
 	"go-clean/models/responses"
+	"gorm.io/gorm"
 	"net/http"
 )
 
@@ -97,6 +99,11 @@ func SendErrorResponse(ctx *gin.Context, errorResponse responses.ErrorResponse) 
 			if errorResponse.StatusCode != 500 {
 				statusCode = errorResponse.StatusCode
 			}
+
+			if errors.Is(errorResponse.Error, gorm.ErrRecordNotFound) {
+				statusCode = http.StatusNotFound
+			}
+
 			body := gin.H{
 				"success": false,
 				"error":   errorResponse.Error.Error(),

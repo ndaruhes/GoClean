@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"github.com/h2non/bimg"
 	"io/ioutil"
 	"mime/multipart"
@@ -15,8 +16,17 @@ func UploadSingleFile(file []byte, fileName string, targetDir string) error {
 	}
 
 	destPath := filepath.Join("public/"+targetDir, fileName)
-	err := ioutil.WriteFile(destPath, file, 0644)
-	if err != nil {
+	if err := ioutil.WriteFile(destPath, file, 0644); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteFile(fileName string, targetDir string) error {
+	destPath := filepath.Join("public/"+targetDir, fileName)
+	fmt.Println("anjay", destPath)
+	if err := os.Remove(destPath); err != nil {
 		return err
 	}
 

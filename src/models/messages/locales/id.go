@@ -29,6 +29,9 @@ var ErrorID = map[string]string{
 	"ERROR-401002": "Anda belum terdaftar",
 	"ERROR-401003": "Kredensial tidak cocok",
 
+	// ERROR 404 LIST
+	"ERROR-404001": "Data tidak ditemukan",
+
 	//	ERROR 500 LISTS
 	"ERROR-50001": "Gagal migrasi database",
 	"ERROR-50002": "Migrate key tidak valid",
