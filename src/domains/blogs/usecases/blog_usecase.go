@@ -22,6 +22,8 @@ func NewBlogUseCase(blogRepo blogs.BlogRepository) *BlogUseCase {
 	}
 }
 
+var imgPath = "public/images/blogs/USER-"
+
 func (uc *BlogUseCase) GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlogListsResponse, error) {
 	//TODO implement me
 	panic("implement me")
@@ -50,7 +52,8 @@ func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlog
 		return err
 	}
 
-	err = utils.UploadSingleFile(compressed, fileName, "images/blogs/")
+	imgDir := imgPath + user.ID
+	err = utils.UploadSingleFile(compressed, imgDir, fileName)
 	if err != nil {
 		return err
 	}
@@ -95,12 +98,13 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 			return err
 		}
 
-		err = utils.UploadSingleFile(compressed, fileName, "images/blogs/")
+		imgDir := imgPath + user.ID
+		err = utils.UploadSingleFile(compressed, imgDir, fileName)
 		if err != nil {
 			return err
 		}
 
-		err = utils.DeleteFile(blog.Cover, "images/blogs/")
+		err = utils.DeleteSingleFile(imgDir, blog.Cover)
 		if err != nil {
 			return err
 		}
@@ -115,4 +119,19 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 	}
 
 	return nil
+}
+
+func (uc *BlogUseCase) DeleteBlog(ctx *gin.Context, blogID string) error {
+	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
+	if err != nil {
+		return err
+	}
+
+	currImgDir := imgPath + blog.UserID
+	targetImgDir := imgPath + blog.UserID + "/trash"
+	if err := utils.MoveSingleFile(currImgDir, targetImgDir, blog.Cover); err != nil {
+		return err
+	}
+
+	return uc.blogRepo.DeleteBlog(ctx, blogID)
 }

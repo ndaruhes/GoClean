@@ -2,39 +2,68 @@ package utils
 
 import (
 	"errors"
-	"fmt"
-	"github.com/h2non/bimg"
 	"io/ioutil"
 	"mime/multipart"
 	"os"
 	"path/filepath"
+
+	"github.com/h2non/bimg"
 )
-
-func UploadSingleFile(file []byte, fileName string, targetDir string) error {
-	if err := MakeDirectory("public/" + targetDir); err != nil {
-		return err
-	}
-
-	destPath := filepath.Join("public/"+targetDir, fileName)
-	if err := ioutil.WriteFile(destPath, file, 0644); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func DeleteFile(fileName string, targetDir string) error {
-	destPath := filepath.Join("public/"+targetDir, fileName)
-	fmt.Println("anjay", destPath)
-	if err := os.Remove(destPath); err != nil {
-		return err
-	}
-
-	return nil
-}
 
 func MakeDirectory(source string) error {
 	if err := os.MkdirAll(source, 0755); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func FileExists(targetDir string, fileName string) error {
+	destDir := filepath.Join(targetDir, fileName)
+	_, err := os.Stat(destDir)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UploadSingleFile(file []byte, targetDir string, fileName string) error {
+	if err := MakeDirectory(targetDir); err != nil {
+		return err
+	}
+
+	destDir := filepath.Join(targetDir, fileName)
+	if err := ioutil.WriteFile(destDir, file, 0644); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func MoveSingleFile(sourceDir string, targetDir string, fileName string) error {
+	sourcePath := filepath.Join(sourceDir, fileName)
+	targetPath := filepath.Join(targetDir, fileName)
+
+	if err := MakeDirectory(targetDir); err != nil {
+		return err
+	}
+
+	err := os.Rename(sourcePath, targetPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteSingleFile(targetDir string, fileName string) error {
+	if err := FileExists(targetDir, fileName); err != nil {
+		return err
+	}
+
+	destDir := filepath.Join(targetDir, fileName)
+	if err := os.Remove(destDir); err != nil {
 		return err
 	}
 

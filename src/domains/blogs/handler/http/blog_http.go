@@ -32,6 +32,7 @@ func NewBlogHttp(route *gin.Engine) *BlogHttp {
 		blog.Use(middlewares.Authenticated())
 		blog.POST("", handler.CreateBlog)
 		blog.PUT("/:id", handler.UpdateBlog)
+		blog.DELETE("/:id", handler.DeleteBlog)
 	}
 
 	return handler
@@ -165,5 +166,18 @@ func (handler *BlogHttp) UpdateBlog(ctx *gin.Context) {
 
 	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
 		SuccessCode: "SUCCESS-BLOG-0002",
+	})
+}
+
+func (handler *BlogHttp) DeleteBlog(ctx *gin.Context) {
+	if err := handler.blogUc.DeleteBlog(ctx, ctx.Param("id")); err != nil {
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			Error: err,
+		})
+		return
+	}
+
+	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		SuccessCode: "SUCCESS-BLOG-0003",
 	})
 }
