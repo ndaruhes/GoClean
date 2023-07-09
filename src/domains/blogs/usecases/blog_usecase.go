@@ -22,12 +22,12 @@ func NewBlogUseCase(blogRepo blogs.BlogRepository) *BlogUseCase {
 	}
 }
 
-func (uc BlogUseCase) GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlogListsResponse, error) {
+func (uc *BlogUseCase) GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlogListsResponse, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (uc BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
+func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
 	user := ctx.Value("member").(*responses.TokenDecoded)
 	newBlog := &entities.Blog{
 		Title:   request.Title,
@@ -104,7 +104,6 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 		if err != nil {
 			return err
 		}
-
 	}
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, newBlog); err != nil {
