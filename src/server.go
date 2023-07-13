@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	blogs "go-clean/domains/blogs/handler/http"
 	users "go-clean/domains/users/handler/http"
 	"go-clean/middlewares"
@@ -19,6 +20,7 @@ func migrate(ctx *gin.Context) {
 		err := migration.Migrate()
 		if err != nil {
 			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				Error:      err,
 				StatusCode: http.StatusInternalServerError,
 			})
 		} else {
@@ -28,6 +30,7 @@ func migrate(ctx *gin.Context) {
 		}
 	} else {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			Error:      errors.New("key is invalid"),
 			StatusCode: http.StatusInternalServerError,
 		})
 	}

@@ -6,16 +6,19 @@ import (
 	"go-clean/shared/entities"
 	"gorm.io/gorm"
 	"strings"
+	"time"
 )
 
 type Blog struct {
-	ID      string `json:"id" gorm:"primaryKey;type:varchar(255);not null"`
-	Title   string `json:"title" gorm:"type:varchar(255);not null"`
-	Slug    string `json:"slug" gorm:"index:slug,unique,type:varchar(255);not null"`
-	Cover   string `json:"cover" gorm:"type:varchar(255);not null"`
-	Content string `json:"content" gorm:"type:varchar(255);not null"`
-	UserID  string `json:"user_id" gorm:"type:varchar(255);not null"`
-	User    user.User
+	ID          string     `json:"id" gorm:"primaryKey;type:varchar(255);not null"`
+	Title       *string    `json:"title" gorm:"type:varchar(255);not null"`
+	Slug        *string    `json:"slug" gorm:"index:slug,unique,type:varchar(255);not null"`
+	Cover       *string    `json:"cover" gorm:"type:varchar(255);not null"`
+	Content     *string    `json:"content" gorm:"type:varchar(255);not null"`
+	Status      string     `json:"status" gorm:"type:enum('Draft', 'Published');default:'Draft';not null"`
+	PublishedAt *time.Time `json:"published_at"`
+	UserID      string     `json:"user_id" gorm:"type:varchar(255);not null"`
+	User        user.User
 	entities.Timestamp
 }
 

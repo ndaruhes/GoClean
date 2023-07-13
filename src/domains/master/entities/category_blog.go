@@ -16,3 +16,7 @@ type CategoryBlogLang struct {
 	CategoryBlog   CategoryBlog
 	entities.Timestamp
 }
+
+func (CategoryBlogLang) TableName() string {
+	return "category_blogs_lang"
+}

@@ -6,7 +6,7 @@ import (
 
 type BlogCategory struct {
 	BlogID         string `json:"blog_id"`
-	CategoryBlogID string `json:"category_blog_id"`
+	CategoryBlogID int    `json:"category_blog_id"`
 	Blog           Blog
-	Category       master.CategoryBlog
+	CategoryBlog   master.CategoryBlog
 }

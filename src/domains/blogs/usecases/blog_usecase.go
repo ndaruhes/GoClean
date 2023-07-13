@@ -31,11 +31,12 @@ func (uc *BlogUseCase) GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlo
 
 func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
 	user := ctx.Value("member").(*responses.TokenDecoded)
+	slug := utils.GenerateSlug(request.Title)
 	newBlog := &entities.Blog{
-		Title:   request.Title,
-		Cover:   fileName,
-		Slug:    utils.GenerateSlug(request.Title),
-		Content: request.Content,
+		Title:   &request.Title,
+		Cover:   &fileName,
+		Slug:    &slug,
+		Content: &request.Content,
 		UserID:  user.ID,
 	}
 
@@ -69,6 +70,14 @@ func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlog
 	return nil
 }
 
+func (uc *BlogUseCase) AdjustBlog(ctx *gin.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
+	return nil
+}
+
+func (uc *BlogUseCase) PublishBlog(ctx *gin.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
+	return nil
+}
+
 func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
 	user := ctx.Value("member").(*responses.TokenDecoded)
 
@@ -78,8 +87,8 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 	}
 
 	newBlog := &entities.Blog{
-		Title:   request.Title,
-		Content: request.Content,
+		Title:   &request.Title,
+		Content: &request.Content,
 		UserID:  user.ID,
 	}
 
@@ -92,7 +101,7 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 	}
 
 	if file != nil && fileName != "" {
-		newBlog.Cover = fileName
+		newBlog.Cover = &fileName
 		compressed, err := utils.CompressFile(file, 70)
 		if err != nil {
 			return err
@@ -104,7 +113,7 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 			return err
 		}
 
-		err = utils.DeleteSingleFile(imgDir, blog.Cover)
+		err = utils.DeleteSingleFile(imgDir, *blog.Cover)
 		if err != nil {
 			return err
 		}
@@ -129,7 +138,7 @@ func (uc *BlogUseCase) DeleteBlog(ctx *gin.Context, blogID string) error {
 
 	currImgDir := imgPath + blog.UserID
 	targetImgDir := imgPath + blog.UserID + "/trash"
-	if err := utils.MoveSingleFile(currImgDir, targetImgDir, blog.Cover); err != nil {
+	if err := utils.MoveSingleFile(currImgDir, targetImgDir, *blog.Cover); err != nil {
 		return err
 	}
 
