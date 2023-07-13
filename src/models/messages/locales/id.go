@@ -16,6 +16,7 @@ var SuccessID = map[string]string{
 	"SUCCESS-BLOG-0001": "Blog berhasil dibuat",
 	"SUCCESS-BLOG-0002": "Blog berhasil diubah",
 	"SUCCESS-BLOG-0003": "Blog berhasil dihapus",
+	"SUCCESS-BLOG-0004": "Blog berhasil di publikasi",
 }
 
 // === ERROR MESSAGES ===
@@ -29,6 +30,9 @@ var ErrorID = map[string]string{
 	"ERROR-401001": "Email sudah terdaftar",
 	"ERROR-401002": "Anda belum terdaftar",
 	"ERROR-401003": "Kredensial tidak cocok",
+
+	// ERROR 403 LIST
+	"ERROR-403001": "Tidak dapat mengedit blog, status invalid",
 
 	// ERROR 404 LIST
 	"ERROR-404001": "Data tidak ditemukan",

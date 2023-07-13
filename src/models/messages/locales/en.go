@@ -13,9 +13,10 @@ var SuccessEN = map[string]string{
 	"SUCCESS-DB-0001": "Success migrate database",
 
 	//	BLOG LISTS
-	"SUCCESS-BLOG-0001": "Blog created successfully",
-	"SUCCESS-BLOG-0002": "Blog updated successfully",
-	"SUCCESS-BLOG-0003": "Blog deleted successfully",
+	"SUCCESS-BLOG-0001": "Blog successfully created",
+	"SUCCESS-BLOG-0002": "Blog successfully updated",
+	"SUCCESS-BLOG-0003": "Blog successfully deleted",
+	"SUCCESS-BLOG-0004": "Blog successfully published",
 }
 
 // === ERROR MESSAGES ===
@@ -29,6 +30,9 @@ var ErrorEN = map[string]string{
 	"ERROR-401001": "Email has already registered",
 	"ERROR-401002": "You are not registered",
 	"ERROR-401003": "Credentials doesn't match",
+
+	// ERROR 403 LIST
+	"ERROR-403001": "Can't edit blog, invalid status",
 
 	// ERROR 404 LIST
 	"ERROR-404001": "Data not found",

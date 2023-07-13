@@ -61,16 +61,8 @@ func (repo *BlogRepository) CreateBlog(ctx *gin.Context, blog *entities.Blog) er
 	return repo.db.WithContext(ctx).Create(&blog).Error
 }
 
-func (repo *BlogRepository) AdjustBlog(ctx *gin.Context, blogID string, blog *entities.Blog) error {
-	return nil
-}
-
-func (repo *BlogRepository) PublishBlog(ctx *gin.Context, blog *entities.Blog) error {
-	return nil
-}
-
-func (repo *BlogRepository) UpdateBlog(ctx *gin.Context, blogID string, blog *entities.Blog) error {
-	return repo.db.WithContext(ctx).Where("id = ?", blogID).Updates(&blog).Error
+func (repo *BlogRepository) UpdateBlog(ctx *gin.Context, blogID string, blogStatusCheck string, blog *entities.Blog) error {
+	return repo.db.WithContext(ctx).Model(&entities.Blog{}).Where("id = ?", blogID).Where("status = ?", blogStatusCheck).Updates(&blog).Error
 }
 
 func (repo *BlogRepository) DeleteBlog(ctx *gin.Context, blogID string) error {

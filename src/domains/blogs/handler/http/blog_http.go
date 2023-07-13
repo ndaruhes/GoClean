@@ -31,6 +31,8 @@ func NewBlogHttp(route *gin.Engine) *BlogHttp {
 	{
 		blog.Use(middlewares.Authenticated())
 		blog.POST("", handler.CreateBlog)
+		blog.PUT("/:id/edit", handler.AdjustBlog)
+		blog.PUT("/:id/publish", handler.PublishBlog)
 		blog.PUT("/:id", handler.UpdateBlog)
 		blog.DELETE("/:id", handler.DeleteBlog)
 	}
@@ -43,6 +45,60 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 		Title:   ctx.PostForm("title"),
 		Content: ctx.PostForm("content"),
 	}
+
+	var (
+		file     []byte
+		fileName string
+	)
+	header, err := ctx.FormFile("cover")
+	if header != nil {
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+
+		err = validators.ValidateImage(header)
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+
+		file, err = utils.MultipartFileHeaderToByte(header)
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+
+		fileName = strings.ToUpper(xid.New().String()) + "-" + header.Filename
+	}
+
+	if err := handler.blogUc.CreateBlog(ctx, request, file, fileName); err != nil {
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			Error: err,
+		})
+		return
+	}
+
+	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		SuccessCode: "SUCCESS-BLOG-0001",
+	})
+}
+
+func (handler *BlogHttp) PublishBlog(ctx *gin.Context) {
+	request := &requests.UpsertBlogRequest{
+		Title:   ctx.PostForm("title"),
+		Content: ctx.PostForm("content"),
+	}
+
 	if err := ctx.ShouldBind(&request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error:      err,
@@ -60,35 +116,42 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 		return
 	}
 
+	var (
+		file     []byte
+		fileName string
+	)
 	header, err := ctx.FormFile("cover")
-	if messages.HasError(err) {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Error:      err,
-		})
-		return
+	if header != nil {
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+
+		err = validators.ValidateImage(header)
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+
+		file, err = utils.MultipartFileHeaderToByte(header)
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+
+		fileName = strings.ToUpper(xid.New().String()) + "-" + header.Filename
 	}
 
-	err = validators.ValidateImage(header)
-	if messages.HasError(err) {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Error:      err,
-		})
-		return
-	}
-
-	file, err := utils.MultipartFileHeaderToByte(header)
-	if messages.HasError(err) {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Error:      err,
-		})
-		return
-	}
-
-	fileName := strings.ToUpper(xid.New().String()) + "-" + header.Filename
-	if err := handler.blogUc.CreateBlog(ctx, request, file, fileName); err != nil {
+	if err := handler.blogUc.PublishBlog(ctx, ctx.Param("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
@@ -96,7 +159,60 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 	}
 
 	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-		SuccessCode: "SUCCESS-BLOG-0001",
+		SuccessCode: "SUCCESS-BLOG-0004",
+	})
+}
+
+func (handler *BlogHttp) AdjustBlog(ctx *gin.Context) {
+	request := &requests.UpsertBlogRequest{
+		Title:   ctx.PostForm("title"),
+		Content: ctx.PostForm("content"),
+	}
+
+	var (
+		file     []byte
+		fileName string
+	)
+	header, err := ctx.FormFile("cover")
+	if header != nil {
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+
+		err = validators.ValidateImage(header)
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+
+		file, err = utils.MultipartFileHeaderToByte(header)
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+
+		fileName = strings.ToUpper(xid.New().String()) + "-" + header.Filename
+	}
+
+	if err := handler.blogUc.AdjustBlog(ctx, ctx.Param("id"), request, file, fileName); err != nil {
+		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			Error: err,
+		})
+		return
+	}
+
+	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		SuccessCode: "SUCCESS-BLOG-0002",
 	})
 }
 
@@ -105,6 +221,7 @@ func (handler *BlogHttp) UpdateBlog(ctx *gin.Context) {
 		Title:   ctx.PostForm("title"),
 		Content: ctx.PostForm("content"),
 	}
+
 	if err := ctx.ShouldBind(&request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error:      err,
