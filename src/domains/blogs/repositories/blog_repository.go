@@ -20,6 +20,19 @@ func NewBlogRepository(db *gorm.DB) *BlogRepository {
 	}
 }
 
+func (repo *BlogRepository) BeginTransaction(ctx *gin.Context) *gorm.DB {
+	db := repo.db.Begin()
+	ctx.Set("tx", db)
+	return db
+}
+
+func (repo *BlogRepository) Commit(ctx *gin.Context) {
+	db, _ := ctx.Get("tx")
+	if tx, ok := db.(*gorm.DB); ok {
+		tx.Commit()
+	}
+}
+
 func (repo *BlogRepository) FindBlogById(ctx *gin.Context, id string) (*entities.Blog, error) {
 	var blog *entities.Blog
 	if err := repo.db.WithContext(ctx).Where("id = ?", id).First(&blog).Error; err != nil {
@@ -57,8 +70,17 @@ func (repo *BlogRepository) GetPublicBlogList(ctx *gin.Context) (*responses.Publ
 	panic("implement me")
 }
 
-func (repo *BlogRepository) CreateBlog(ctx *gin.Context, blog *entities.Blog) error {
-	return repo.db.WithContext(ctx).Create(&blog).Error
+func (repo *BlogRepository) CreateBlog(ctx *gin.Context, blog *entities.Blog) (*entities.Blog, error) {
+	err := repo.db.WithContext(ctx).Create(&blog).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return blog, nil
+}
+
+func (repo *BlogRepository) CreateBlogCategory(ctx *gin.Context, blogCategory []entities.BlogCategory) error {
+	return repo.db.WithContext(ctx).Create(&blogCategory).Error
 }
 
 func (repo *BlogRepository) UpdateBlog(ctx *gin.Context, blogID string, blogStatusCheck string, blog *entities.Blog) error {

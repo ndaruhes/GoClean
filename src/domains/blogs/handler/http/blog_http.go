@@ -12,6 +12,7 @@ import (
 	"go-clean/shared/utils"
 	"go-clean/shared/validators"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -45,6 +46,22 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 		Title:   ctx.PostForm("title"),
 		Content: ctx.PostForm("content"),
 	}
+
+	blogCategoryIds, _ := ctx.GetPostFormArray("blogCategoryIds[]")
+	convertedCategoryIds := make([]int, len(blogCategoryIds))
+	for i, id := range blogCategoryIds {
+		convertedId, err := strconv.Atoi(id)
+		if err != nil {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+		convertedCategoryIds[i] = convertedId
+	}
+
+	request.BlogCategoryIds = convertedCategoryIds
 
 	var (
 		file     []byte

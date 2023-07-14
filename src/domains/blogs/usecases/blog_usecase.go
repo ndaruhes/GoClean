@@ -39,7 +39,7 @@ func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlog
 	if request.Title != "" {
 		title = request.Title
 	}
-	payload := &entities.Blog{
+	blogPayload := &entities.Blog{
 		Title:   &title,
 		Cover:   &fileName,
 		Slug:    utils.GenerateSlug(title),
@@ -47,7 +47,7 @@ func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlog
 		UserID:  user.ID,
 	}
 
-	if _, err := validators.ValidateStruct(ctx, payload); err != nil {
+	if _, err := validators.ValidateStruct(ctx, blogPayload); err != nil {
 		return &messages.ErrorWrapper{
 			Context:    ctx,
 			Err:        err,
@@ -68,13 +68,35 @@ func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlog
 		}
 	}
 
-	if err := uc.blogRepo.CreateBlog(ctx, payload); err != nil {
+	tx := uc.blogRepo.BeginTransaction(ctx)
+	newBlog, err := uc.blogRepo.CreateBlog(ctx, blogPayload)
+	if err != nil {
+		tx.Rollback()
 		return &messages.ErrorWrapper{
 			Context:    ctx,
 			Err:        err,
 			StatusCode: http.StatusInternalServerError,
 		}
 	}
+
+	var blogCategoryPayload []entities.BlogCategory
+	for _, id := range request.BlogCategoryIds {
+		blogCategoryPayload = append(blogCategoryPayload, entities.BlogCategory{
+			BlogID:         newBlog.ID,
+			CategoryBlogID: id,
+		})
+	}
+
+	if err := uc.blogRepo.CreateBlogCategory(ctx, blogCategoryPayload); err != nil {
+		tx.Rollback()
+		return &messages.ErrorWrapper{
+			Context:    ctx,
+			Err:        err,
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+
+	uc.blogRepo.Commit(ctx)
 
 	return nil
 }
