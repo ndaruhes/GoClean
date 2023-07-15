@@ -25,6 +25,7 @@ var ErrorID = map[string]string{
 	"ERROR-400001": "Pengguna telah diaktifkan",
 	"ERROR-400002": "Anda telah menyelesaikan profil Anda",
 	"ERROR-400003": "Harap isi form dengan benar",
+	"ERROR-400004": "Haraf tambahkan sampul blog",
 
 	// ERROR 401 LISTS
 	"ERROR-401001": "Email sudah terdaftar",

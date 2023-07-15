@@ -13,7 +13,7 @@ import (
 var secretKey = "key"
 
 func GenerateToken(id string, email string, role string) (string, error) {
-	expiry := time.Now().Add(time.Hour * 1).Unix()
+	expiry := time.Now().Add(time.Hour * 10).Unix()
 	claims := jwt.MapClaims{
 		"id":    id,
 		"email": email,

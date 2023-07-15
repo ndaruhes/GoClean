@@ -9,6 +9,7 @@ import (
 )
 
 type BlogUseCase interface {
+	// BLOG USECASE
 	GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlogListsResponse, error)
 	CreateBlog(ctx *gin.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error
 	AdjustBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
@@ -20,13 +21,19 @@ type BlogUseCase interface {
 }
 
 type BlogRepository interface {
+	// DB REPOSITORY
 	BeginTransaction(ctx *gin.Context) *gorm.DB
 	Commit(ctx *gin.Context)
+
+	// BLOG REPOSITORY
 	FindBlogById(ctx *gin.Context, id string) (*entities.Blog, error)
 	FindBlogBySlug(ctx *gin.Context, slug string) (*entities.Blog, error)
 	GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlogListsResponse, error)
 	CreateBlog(ctx *gin.Context, blog *entities.Blog) (*entities.Blog, error)
-	CreateBlogCategory(ctx *gin.Context, blogCategory []entities.BlogCategory) error
 	UpdateBlog(ctx *gin.Context, blogID string, blogStatusCheck string, blog *entities.Blog) error
 	DeleteBlog(ctx *gin.Context, blogID string) error
+
+	// BLOG CATEGORY REPOSITORY
+	CreateBlogCategory(ctx *gin.Context, blogCategory []entities.BlogCategory) error
+	UpdateBlogCategory(ctx *gin.Context, blogID string, blogCategory []entities.BlogCategory) error
 }

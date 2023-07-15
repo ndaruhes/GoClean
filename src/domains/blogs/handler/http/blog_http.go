@@ -102,6 +102,7 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
+
 		return
 	}
 
@@ -115,6 +116,22 @@ func (handler *BlogHttp) PublishBlog(ctx *gin.Context) {
 		Title:   ctx.PostForm("title"),
 		Content: ctx.PostForm("content"),
 	}
+
+	blogCategoryIds, _ := ctx.GetPostFormArray("blogCategoryIds[]")
+	convertedCategoryIds := make([]int, len(blogCategoryIds))
+	for i, id := range blogCategoryIds {
+		convertedId, err := strconv.Atoi(id)
+		if err != nil {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+		convertedCategoryIds[i] = convertedId
+	}
+
+	request.BlogCategoryIds = convertedCategoryIds
 
 	if err := ctx.ShouldBind(&request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
@@ -186,6 +203,22 @@ func (handler *BlogHttp) AdjustBlog(ctx *gin.Context) {
 		Content: ctx.PostForm("content"),
 	}
 
+	blogCategoryIds, _ := ctx.GetPostFormArray("blogCategoryIds[]")
+	convertedCategoryIds := make([]int, len(blogCategoryIds))
+	for i, id := range blogCategoryIds {
+		convertedId, err := strconv.Atoi(id)
+		if err != nil {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+		convertedCategoryIds[i] = convertedId
+	}
+
+	request.BlogCategoryIds = convertedCategoryIds
+
 	var (
 		file     []byte
 		fileName string
@@ -238,6 +271,22 @@ func (handler *BlogHttp) UpdateBlog(ctx *gin.Context) {
 		Title:   ctx.PostForm("title"),
 		Content: ctx.PostForm("content"),
 	}
+
+	blogCategoryIds, _ := ctx.GetPostFormArray("blogCategoryIds[]")
+	convertedCategoryIds := make([]int, len(blogCategoryIds))
+	for i, id := range blogCategoryIds {
+		convertedId, err := strconv.Atoi(id)
+		if err != nil {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return
+		}
+		convertedCategoryIds[i] = convertedId
+	}
+
+	request.BlogCategoryIds = convertedCategoryIds
 
 	if err := ctx.ShouldBind(&request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{

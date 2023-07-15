@@ -25,6 +25,7 @@ var ErrorEN = map[string]string{
 	"ERROR-400001": "User has been activated",
 	"ERROR-400002": "You have completed your profile",
 	"ERROR-400003": "Please fill form correctly",
+	"ERROR-400004": "Please upload blog cover",
 
 	// ERROR 401 LISTS
 	"ERROR-401001": "Email has already registered",
