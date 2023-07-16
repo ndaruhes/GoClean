@@ -9,6 +9,7 @@ import (
 	"go-clean/models/responses"
 	"go-clean/shared/utils"
 	"go-clean/shared/validators"
+	"gorm.io/gorm"
 	"net/http"
 	"time"
 
@@ -102,8 +103,6 @@ func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlog
 }
 
 func (uc *BlogUseCase) AdjustBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
-	user := ctx.Value("member").(*responses.TokenDecoded)
-
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -145,49 +144,20 @@ func (uc *BlogUseCase) AdjustBlog(ctx *gin.Context, blogID string, request *requ
 		}
 	}
 
-	var blogCategoryPayload []entities.BlogCategory
-	for _, id := range request.BlogCategoryIds {
-		blogCategoryPayload = append(blogCategoryPayload, entities.BlogCategory{
-			BlogID:         blog.ID,
-			CategoryBlogID: id,
-		})
-	}
-
-	if err := uc.blogRepo.UpdateBlogCategory(ctx, blog.ID, blogCategoryPayload); err != nil {
-		tx.Rollback()
-		return &messages.ErrorWrapper{
-			Context:    ctx,
-			Err:        err,
-			StatusCode: http.StatusInternalServerError,
-		}
+	if err := updateBlogCategory(ctx, blog, request, uc, tx); err != nil {
+		return err
 	}
 
 	uc.blogRepo.Commit(ctx)
 
-	if file != nil && fileName != "" {
-		compressed, err := utils.CompressFile(file, 70)
-		if err != nil {
-			return err
-		}
-
-		imgDir := constants.IMGPATH + user.ID
-		err = utils.UploadSingleFile(compressed, imgDir, fileName)
-		if err != nil {
-			return err
-		}
-
-		err = utils.DeleteSingleFile(constants.IMGPATH+user.ID, *blog.Cover)
-		if err != nil {
-			return err
-		}
+	if err = uploadAndDeleteSingleFile(ctx, blog, file, fileName); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (uc *BlogUseCase) PublishBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
-	user := ctx.Value("member").(*responses.TokenDecoded)
-
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -221,22 +191,6 @@ func (uc *BlogUseCase) PublishBlog(ctx *gin.Context, blogID string, request *req
 	ctx.Set("tx", tx)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.DRAFT, payload); err != nil {
-		return &messages.ErrorWrapper{
-			Context:    ctx,
-			Err:        err,
-			StatusCode: http.StatusInternalServerError,
-		}
-	}
-
-	var blogCategoryPayload []entities.BlogCategory
-	for _, id := range request.BlogCategoryIds {
-		blogCategoryPayload = append(blogCategoryPayload, entities.BlogCategory{
-			BlogID:         blog.ID,
-			CategoryBlogID: id,
-		})
-	}
-
-	if err := uc.blogRepo.UpdateBlogCategory(ctx, blog.ID, blogCategoryPayload); err != nil {
 		tx.Rollback()
 		return &messages.ErrorWrapper{
 			Context:    ctx,
@@ -245,32 +199,20 @@ func (uc *BlogUseCase) PublishBlog(ctx *gin.Context, blogID string, request *req
 		}
 	}
 
+	if err := updateBlogCategory(ctx, blog, request, uc, tx); err != nil {
+		return err
+	}
+
 	uc.blogRepo.Commit(ctx)
 
-	if file != nil && fileName != "" {
-		compressed, err := utils.CompressFile(file, 70)
-		if err != nil {
-			return err
-		}
-
-		imgDir := constants.IMGPATH + user.ID
-		err = utils.UploadSingleFile(compressed, imgDir, fileName)
-		if err != nil {
-			return err
-		}
-
-		err = utils.DeleteSingleFile(constants.IMGPATH+user.ID, *blog.Cover)
-		if err != nil {
-			return err
-		}
+	if err = uploadAndDeleteSingleFile(ctx, blog, file, fileName); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
-	user := ctx.Value("member").(*responses.TokenDecoded)
-
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -294,22 +236,6 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 	ctx.Set("tx", tx)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.PUBLISHED, payload); err != nil {
-		return &messages.ErrorWrapper{
-			Context:    ctx,
-			Err:        err,
-			StatusCode: http.StatusInternalServerError,
-		}
-	}
-
-	var blogCategoryPayload []entities.BlogCategory
-	for _, id := range request.BlogCategoryIds {
-		blogCategoryPayload = append(blogCategoryPayload, entities.BlogCategory{
-			BlogID:         blog.ID,
-			CategoryBlogID: id,
-		})
-	}
-
-	if err := uc.blogRepo.UpdateBlogCategory(ctx, blog.ID, blogCategoryPayload); err != nil {
 		tx.Rollback()
 		return &messages.ErrorWrapper{
 			Context:    ctx,
@@ -318,45 +244,32 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 		}
 	}
 
+	if err := updateBlogCategory(ctx, blog, request, uc, tx); err != nil {
+		return err
+	}
+
 	uc.blogRepo.Commit(ctx)
 
-	if file != nil && fileName != "" {
-		compressed, err := utils.CompressFile(file, 70)
-		if err != nil {
-			return err
-		}
-
-		imgDir := constants.IMGPATH + user.ID
-		err = utils.UploadSingleFile(compressed, imgDir, fileName)
-		if err != nil {
-			return err
-		}
-
-		err = utils.DeleteSingleFile(constants.IMGPATH+user.ID, *blog.Cover)
-		if err != nil {
-			return err
-		}
+	if err = uploadAndDeleteSingleFile(ctx, blog, file, fileName); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (uc *BlogUseCase) UpdateSlug(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest) error {
+func (uc *BlogUseCase) UpdateSlug(ctx *gin.Context, blogID string, request *requests.UpdateSlugRequest) error {
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
 	}
 
-	if blog.Status != constants.PUBLISHED {
-		return &messages.ErrorWrapper{
-			Context:    ctx,
-			ErrorCode:  "ERROR-403001",
-			StatusCode: http.StatusForbidden,
-		}
-	}
-
 	payload := &entities.Blog{
 		Slug: utils.GenerateSlug(request.Title),
+	}
+
+	err = validateStatusAndStruct(ctx, blog, constants.PUBLISHED, payload)
+	if err != nil {
+		return err
 	}
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.PUBLISHED, payload); err != nil {
@@ -376,16 +289,13 @@ func (uc *BlogUseCase) UpdateBlogToDraft(ctx *gin.Context, blogID string) error 
 		return err
 	}
 
-	if blog.Status != constants.PUBLISHED {
-		return &messages.ErrorWrapper{
-			Context:    ctx,
-			ErrorCode:  "ERROR-403001",
-			StatusCode: http.StatusForbidden,
-		}
-	}
-
 	payload := &entities.Blog{
 		Status: constants.DRAFT,
+	}
+
+	err = validateStatusAndStruct(ctx, blog, constants.PUBLISHED, payload)
+	if err != nil {
+		return err
 	}
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.PUBLISHED, payload); err != nil {
@@ -428,6 +338,51 @@ func validateStatusAndStruct(ctx *gin.Context, blog *entities.Blog, wantStatus s
 			Context:    ctx,
 			Err:        err,
 			StatusCode: http.StatusBadRequest,
+		}
+	}
+
+	return nil
+}
+
+func updateBlogCategory(ctx *gin.Context, blog *entities.Blog, request *requests.UpsertBlogRequest, uc *BlogUseCase, tx *gorm.DB) error {
+	var blogCategoryPayload []entities.BlogCategory
+	for _, id := range request.BlogCategoryIds {
+		blogCategoryPayload = append(blogCategoryPayload, entities.BlogCategory{
+			BlogID:         blog.ID,
+			CategoryBlogID: id,
+		})
+	}
+
+	if err := uc.blogRepo.UpdateBlogCategory(ctx, blog.ID, blogCategoryPayload); err != nil {
+		tx.Rollback()
+		return &messages.ErrorWrapper{
+			Context:    ctx,
+			Err:        err,
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+
+	return nil
+}
+
+func uploadAndDeleteSingleFile(ctx *gin.Context, blog *entities.Blog, file []byte, fileName string) error {
+	user := ctx.Value("member").(*responses.TokenDecoded)
+
+	if file != nil && fileName != "" {
+		compressed, err := utils.CompressFile(file, 70)
+		if err != nil {
+			return err
+		}
+
+		imgDir := constants.IMGPATH + user.ID
+		err = utils.UploadSingleFile(compressed, imgDir, fileName)
+		if err != nil {
+			return err
+		}
+
+		err = utils.DeleteSingleFile(constants.IMGPATH+user.ID, *blog.Cover)
+		if err != nil {
+			return err
 		}
 	}
 

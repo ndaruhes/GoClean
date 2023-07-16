@@ -101,7 +101,10 @@ func (repo *BlogRepository) DeleteBlog(ctx *gin.Context, blogID string) error {
 
 // BLOG CATEGORY REPOSITORY
 func (repo *BlogRepository) CreateBlogCategory(ctx *gin.Context, blogCategory []entities.BlogCategory) error {
-	return repo.getDb(ctx).WithContext(ctx).Create(&blogCategory).Error
+	if len(blogCategory) > 0 {
+		return repo.getDb(ctx).WithContext(ctx).Create(&blogCategory).Error
+	}
+	return nil
 }
 
 func (repo *BlogRepository) UpdateBlogCategory(ctx *gin.Context, blogID string, blogCategory []entities.BlogCategory) error {

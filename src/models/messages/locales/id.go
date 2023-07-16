@@ -17,6 +17,8 @@ var SuccessID = map[string]string{
 	"SUCCESS-BLOG-0002": "Blog berhasil diubah",
 	"SUCCESS-BLOG-0003": "Blog berhasil dihapus",
 	"SUCCESS-BLOG-0004": "Blog berhasil di publikasi",
+	"SUCCESS-BLOG-0005": "Slug blog berhasil diubah",
+	"SUCCESS-BLOG-0006": "Blog berhasil diubah ke draft",
 }
 
 // === ERROR MESSAGES ===

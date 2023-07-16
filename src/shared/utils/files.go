@@ -2,10 +2,13 @@ package utils
 
 import (
 	"errors"
+	"github.com/rs/xid"
 	"io/ioutil"
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/h2non/bimg"
 )
@@ -89,4 +92,13 @@ func CompressFile(file []byte, quality int) ([]byte, error) {
 	}
 
 	return bimg.NewImage(converted).Process(bimg.Options{Quality: quality})
+}
+
+func GenerateFileName(header *multipart.FileHeader) string {
+	fileName := header.Filename
+	extension := filepath.Ext(fileName)
+	originalName := fileName[:len(fileName)-len(extension)]
+	timeStamp := time.Now().UTC().Format("20060102150405")
+
+	return originalName + "-" + strings.ToUpper(xid.New().String()) + "-" + timeStamp + extension
 }

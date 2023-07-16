@@ -15,7 +15,7 @@ type BlogUseCase interface {
 	AdjustBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
 	PublishBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
 	UpdateBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
-	UpdateSlug(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest) error
+	UpdateSlug(ctx *gin.Context, blogID string, request *requests.UpdateSlugRequest) error
 	UpdateBlogToDraft(ctx *gin.Context, blogID string) error
 	DeleteBlog(ctx *gin.Context, blogID string) error
 }
