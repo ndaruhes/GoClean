@@ -46,57 +46,10 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 		Content: ctx.PostForm("content"),
 	}
 
-	blogCategoryIds, _ := ctx.GetPostFormArray("blogCategoryIds[]")
-	convertedCategoryIds := make([]int, len(blogCategoryIds))
-	for i, id := range blogCategoryIds {
-		convertedId, err := strconv.Atoi(id)
-		if err != nil {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-		convertedCategoryIds[i] = convertedId
-	}
+	blogCategoryIds := handleBlogCategories(ctx)
+	request.BlogCategoryIds = blogCategoryIds
 
-	request.BlogCategoryIds = convertedCategoryIds
-
-	var (
-		file     []byte
-		fileName string
-	)
-	header, err := ctx.FormFile("cover")
-	if header != nil {
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		err = validators.ValidateImage(header)
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		file, err = utils.MultipartFileHeaderToByte(header)
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		fileName = utils.GenerateFileName(header)
-	}
-
+	file, fileName := handleSingleFile(ctx)
 	if err := handler.blogUc.CreateBlog(ctx, request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
@@ -116,57 +69,10 @@ func (handler *BlogHttp) AdjustBlog(ctx *gin.Context) {
 		Content: ctx.PostForm("content"),
 	}
 
-	blogCategoryIds, _ := ctx.GetPostFormArray("blogCategoryIds[]")
-	convertedCategoryIds := make([]int, len(blogCategoryIds))
-	for i, id := range blogCategoryIds {
-		convertedId, err := strconv.Atoi(id)
-		if err != nil {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-		convertedCategoryIds[i] = convertedId
-	}
+	blogCategoryIds := handleBlogCategories(ctx)
+	request.BlogCategoryIds = blogCategoryIds
 
-	request.BlogCategoryIds = convertedCategoryIds
-
-	var (
-		file     []byte
-		fileName string
-	)
-	header, err := ctx.FormFile("cover")
-	if header != nil {
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		err = validators.ValidateImage(header)
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		file, err = utils.MultipartFileHeaderToByte(header)
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		fileName = utils.GenerateFileName(header)
-	}
-
+	file, fileName := handleSingleFile(ctx)
 	if err := handler.blogUc.AdjustBlog(ctx, ctx.Param("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
@@ -185,21 +91,8 @@ func (handler *BlogHttp) PublishBlog(ctx *gin.Context) {
 		Content: ctx.PostForm("content"),
 	}
 
-	blogCategoryIds, _ := ctx.GetPostFormArray("blogCategoryIds[]")
-	convertedCategoryIds := make([]int, len(blogCategoryIds))
-	for i, id := range blogCategoryIds {
-		convertedId, err := strconv.Atoi(id)
-		if err != nil {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-		convertedCategoryIds[i] = convertedId
-	}
-
-	request.BlogCategoryIds = convertedCategoryIds
+	blogCategoryIds := handleBlogCategories(ctx)
+	request.BlogCategoryIds = blogCategoryIds
 
 	if err := ctx.ShouldBind(&request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
@@ -218,41 +111,7 @@ func (handler *BlogHttp) PublishBlog(ctx *gin.Context) {
 		return
 	}
 
-	var (
-		file     []byte
-		fileName string
-	)
-	header, err := ctx.FormFile("cover")
-	if header != nil {
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		err = validators.ValidateImage(header)
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		file, err = utils.MultipartFileHeaderToByte(header)
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		fileName = utils.GenerateFileName(header)
-	}
-
+	file, fileName := handleSingleFile(ctx)
 	if err := handler.blogUc.PublishBlog(ctx, ctx.Param("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
@@ -271,21 +130,8 @@ func (handler *BlogHttp) UpdateBlog(ctx *gin.Context) {
 		Content: ctx.PostForm("content"),
 	}
 
-	blogCategoryIds, _ := ctx.GetPostFormArray("blogCategoryIds[]")
-	convertedCategoryIds := make([]int, len(blogCategoryIds))
-	for i, id := range blogCategoryIds {
-		convertedId, err := strconv.Atoi(id)
-		if err != nil {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-		convertedCategoryIds[i] = convertedId
-	}
-
-	request.BlogCategoryIds = convertedCategoryIds
+	blogCategoryIds := handleBlogCategories(ctx)
+	request.BlogCategoryIds = blogCategoryIds
 
 	if err := ctx.ShouldBind(&request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
@@ -304,41 +150,7 @@ func (handler *BlogHttp) UpdateBlog(ctx *gin.Context) {
 		return
 	}
 
-	var (
-		file     []byte
-		fileName string
-	)
-	header, err := ctx.FormFile("cover")
-	if header != nil {
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		err = validators.ValidateImage(header)
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		file, err = utils.MultipartFileHeaderToByte(header)
-		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return
-		}
-
-		fileName = utils.GenerateFileName(header)
-	}
-
+	file, fileName := handleSingleFile(ctx)
 	if err := handler.blogUc.UpdateBlog(ctx, ctx.Param("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
@@ -405,4 +217,61 @@ func (handler *BlogHttp) UpdateToDraft(ctx *gin.Context) {
 	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
 		SuccessCode: "SUCCESS-BLOG-0006",
 	})
+}
+
+func handleBlogCategories(ctx *gin.Context) []int {
+	blogCategoryIds, _ := ctx.GetPostFormArray("blogCategoryIds[]")
+	convertedCategoryIds := make([]int, len(blogCategoryIds))
+	for i, id := range blogCategoryIds {
+		convertedId, err := strconv.Atoi(id)
+		if err != nil {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return nil
+		}
+		convertedCategoryIds[i] = convertedId
+	}
+
+	return convertedCategoryIds
+}
+
+func handleSingleFile(ctx *gin.Context) ([]byte, string) {
+	var (
+		file     []byte
+		fileName string
+	)
+	header, err := ctx.FormFile("cover")
+	if header != nil {
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return nil, ""
+		}
+
+		err = validators.ValidateImage(header)
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return nil, ""
+		}
+
+		file, err = utils.MultipartFileHeaderToByte(header)
+		if messages.HasError(err) {
+			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			})
+			return nil, ""
+		}
+
+		fileName = utils.GenerateFileName(header)
+	}
+
+	return file, fileName
 }
