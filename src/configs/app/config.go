@@ -56,7 +56,7 @@ func ParseConfig(v *viper.Viper) *Config {
 
 func loadConfig(environment string) (*viper.Viper, error) {
 	v := viper.New()
-	v.SetConfigName(fmt.Sprintf("../config/config-%s", environment))
+	v.SetConfigName(fmt.Sprintf("%s/config-%s", os.Getenv("CONFIG_PATH"), environment))
 	v.AddConfigPath(".")
 	v.AutomaticEnv()
 	if err := v.ReadInConfig(); err != nil {
