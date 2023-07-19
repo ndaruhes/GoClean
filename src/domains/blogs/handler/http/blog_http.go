@@ -21,10 +21,17 @@ type BlogHttp struct {
 }
 
 func NewBlogHttp(route *gin.Engine) *BlogHttp {
-	handler := &BlogHttp{
-		blogUc: blogUseCase.NewBlogUseCase(blogRepository.NewBlogRepository(database.ConnectDatabase()), database.ConnectDatabase()),
-	}
+	db := database.ConnectDatabase()
+	blogRepo := blogRepository.NewBlogRepository(db)
+	blogUc := blogUseCase.NewBlogUseCase(blogRepo, db)
 
+	handler := &BlogHttp{blogUc: blogUc}
+	setRoutes(route, handler)
+
+	return handler
+}
+
+func setRoutes(route *gin.Engine, handler *BlogHttp) {
 	blog := route.Group("blog")
 	{
 		blog.Use(middlewares.Authenticated())
@@ -36,8 +43,6 @@ func NewBlogHttp(route *gin.Engine) *BlogHttp {
 		blog.PUT("/:id/slug", handler.UpdateSlug)
 		blog.PUT("/:id/draft", handler.UpdateToDraft)
 	}
-
-	return handler
 }
 
 func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
