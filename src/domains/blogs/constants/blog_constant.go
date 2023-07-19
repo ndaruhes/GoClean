@@ -6,5 +6,5 @@ const (
 )
 
 const (
-	IMGPATH = "public/images/blogs/USER-"
+	IMG_PATH = "src/public/images/blogs/USER-"
 )

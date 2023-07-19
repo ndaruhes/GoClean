@@ -22,7 +22,7 @@ type BlogHttp struct {
 
 func NewBlogHttp(route *gin.Engine) *BlogHttp {
 	handler := &BlogHttp{
-		blogUc: blogUseCase.NewBlogUseCase(blogRepository.NewBlogRepository(database.ConnectDatabase())),
+		blogUc: blogUseCase.NewBlogUseCase(blogRepository.NewBlogRepository(database.ConnectDatabase()), database.ConnectDatabase()),
 	}
 
 	blog := route.Group("blog")

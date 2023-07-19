@@ -18,11 +18,13 @@ import (
 
 type BlogUseCase struct {
 	blogRepo blogs.BlogRepository
+	db       *gorm.DB
 }
 
-func NewBlogUseCase(blogRepo blogs.BlogRepository) *BlogUseCase {
+func NewBlogUseCase(blogRepo blogs.BlogRepository, db *gorm.DB) *BlogUseCase {
 	return &BlogUseCase{
 		blogRepo: blogRepo,
+		db:       db,
 	}
 }
 
@@ -55,8 +57,7 @@ func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlog
 		}
 	}
 
-	tx := uc.blogRepo.BeginTransaction(ctx)
-	ctx.Set("tx", tx)
+	tx := utils.BeginTransaction(ctx, uc.db)
 	newBlog, err := uc.blogRepo.CreateBlog(ctx, blogPayload)
 	if err != nil {
 		tx.Rollback()
@@ -84,7 +85,7 @@ func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlog
 		}
 	}
 
-	uc.blogRepo.Commit(ctx)
+	utils.Commit(ctx)
 
 	if file != nil && fileName != "" {
 		compressed, err := utils.CompressFile(file, 70)
@@ -92,7 +93,7 @@ func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlog
 			return err
 		}
 
-		imgDir := constants.IMGPATH + user.ID
+		imgDir := constants.IMG_PATH + user.ID
 		err = utils.UploadSingleFile(compressed, imgDir, fileName)
 		if err != nil {
 			return err
@@ -132,8 +133,7 @@ func (uc *BlogUseCase) AdjustBlog(ctx *gin.Context, blogID string, request *requ
 		return err
 	}
 
-	tx := uc.blogRepo.BeginTransaction(ctx)
-	ctx.Set("tx", tx)
+	tx := utils.BeginTransaction(ctx, uc.db)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.DRAFT, payload); err != nil {
 		tx.Rollback()
@@ -148,7 +148,7 @@ func (uc *BlogUseCase) AdjustBlog(ctx *gin.Context, blogID string, request *requ
 		return err
 	}
 
-	uc.blogRepo.Commit(ctx)
+	utils.Commit(ctx)
 
 	if err = uploadAndDeleteSingleFile(ctx, blog, file, fileName); err != nil {
 		return err
@@ -187,8 +187,7 @@ func (uc *BlogUseCase) PublishBlog(ctx *gin.Context, blogID string, request *req
 		return err
 	}
 
-	tx := uc.blogRepo.BeginTransaction(ctx)
-	ctx.Set("tx", tx)
+	tx := utils.BeginTransaction(ctx, uc.db)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.DRAFT, payload); err != nil {
 		tx.Rollback()
@@ -203,7 +202,7 @@ func (uc *BlogUseCase) PublishBlog(ctx *gin.Context, blogID string, request *req
 		return err
 	}
 
-	uc.blogRepo.Commit(ctx)
+	utils.Commit(ctx)
 
 	if err = uploadAndDeleteSingleFile(ctx, blog, file, fileName); err != nil {
 		return err
@@ -232,8 +231,7 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 		return err
 	}
 
-	tx := uc.blogRepo.BeginTransaction(ctx)
-	ctx.Set("tx", tx)
+	tx := utils.BeginTransaction(ctx, uc.db)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.PUBLISHED, payload); err != nil {
 		tx.Rollback()
@@ -248,7 +246,7 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 		return err
 	}
 
-	uc.blogRepo.Commit(ctx)
+	utils.Commit(ctx)
 
 	if err = uploadAndDeleteSingleFile(ctx, blog, file, fileName); err != nil {
 		return err
@@ -315,8 +313,8 @@ func (uc *BlogUseCase) DeleteBlog(ctx *gin.Context, blogID string) error {
 		return err
 	}
 
-	currImgDir := constants.IMGPATH + blog.UserID
-	targetImgDir := constants.IMGPATH + blog.UserID + "/trash"
+	currImgDir := constants.IMG_PATH + blog.UserID
+	targetImgDir := constants.IMG_PATH + blog.UserID + "/trash"
 	if err := utils.MoveSingleFile(currImgDir, targetImgDir, *blog.Cover); err != nil {
 		return err
 	}
@@ -374,13 +372,13 @@ func uploadAndDeleteSingleFile(ctx *gin.Context, blog *entities.Blog, file []byt
 			return err
 		}
 
-		imgDir := constants.IMGPATH + user.ID
+		imgDir := constants.IMG_PATH + user.ID
 		err = utils.UploadSingleFile(compressed, imgDir, fileName)
 		if err != nil {
 			return err
 		}
 
-		err = utils.DeleteSingleFile(constants.IMGPATH+user.ID, *blog.Cover)
+		err = utils.DeleteSingleFile(constants.IMG_PATH+user.ID, *blog.Cover)
 		if err != nil {
 			return err
 		}
