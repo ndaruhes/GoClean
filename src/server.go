@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
+	users "go-clean/domains/auth/handler/http"
 	blogs "go-clean/domains/blogs/handler/http"
-	users "go-clean/domains/users/handler/http"
 	"go-clean/middlewares"
 	"go-clean/models/messages"
 	"go-clean/models/responses"

@@ -1,4 +1,4 @@
-package users
+package auth
 
 import (
 	"go-clean/domains/users/entities"

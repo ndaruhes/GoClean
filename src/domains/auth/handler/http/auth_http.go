@@ -2,9 +2,9 @@ package http
 
 import (
 	"go-clean/configs/database"
-	"go-clean/domains/users"
-	authRepository "go-clean/domains/users/repositories"
-	authUseCase "go-clean/domains/users/usecases"
+	"go-clean/domains/auth"
+	authRepository "go-clean/domains/auth/repositories"
+	authUseCase "go-clean/domains/auth/usecases"
 	"go-clean/models/messages"
 	"go-clean/models/requests"
 	"go-clean/models/responses"
@@ -15,23 +15,26 @@ import (
 )
 
 type AuthHttp struct {
-	authUc users.AuthUseCase
+	authUc auth.AuthUseCase
 }
 
 func NewAuthHttp(route *gin.Engine) *AuthHttp {
-	handler := &AuthHttp{
-		authUc: authUseCase.NewAuthUseCase(
-			authRepository.NewAuthRepository(database.ConnectDatabase()),
-		),
-	}
+	db := database.ConnectDatabase()
+	authRepo := authRepository.NewAuthRepository(db)
+	authUc := authUseCase.NewAuthUseCase(authRepo)
 
+	handler := &AuthHttp{authUc: authUc}
+	setRoutes(route, handler)
+
+	return handler
+}
+
+func setRoutes(route *gin.Engine, handler *AuthHttp) {
 	auth := route.Group("auth")
 	{
 		auth.POST("/register", handler.RegisterWithEmailPassword)
 		auth.POST("/login", handler.LoginByPass)
 	}
-
-	return handler
 }
 
 func (handler *AuthHttp) RegisterWithEmailPassword(ctx *gin.Context) {
