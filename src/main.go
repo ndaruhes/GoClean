@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	appConfig "go-clean/configs/app"
-
 	"github.com/gin-gonic/gin"
+	appConfig "go-clean/configs/app"
 )
 
 func main() {

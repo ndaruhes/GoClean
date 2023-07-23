@@ -2,6 +2,8 @@ package main
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
+	"go-clean/configs/migration"
 	users "go-clean/domains/auth/handler/http"
 	blogs "go-clean/domains/blogs/handler/http"
 	"go-clean/middlewares"
@@ -9,10 +11,6 @@ import (
 	"go-clean/models/responses"
 	"net/http"
 	"os"
-
-	"go-clean/configs/migration"
-
-	"github.com/gin-gonic/gin"
 )
 
 func migrate(ctx *gin.Context) {

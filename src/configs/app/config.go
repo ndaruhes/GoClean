@@ -42,17 +42,17 @@ type Google struct {
 	PublicStorageBucket  string
 }
 
-func ParseConfig(v *viper.Viper) *Config {
-	var c Config
-
-	err := v.Unmarshal(&c)
-	if err != nil {
-		log.Printf("unable to decode into struct, %v", err)
-		panic(err)
-	}
-
-	return &c
-}
+//func ParseConfig(v *viper.Viper) *Config {
+//	var c Config
+//
+//	err := v.Unmarshal(&c)
+//	if err != nil {
+//		log.Printf("unable to decode into struct, %v", err)
+//		panic(err)
+//	}
+//
+//	return &c
+//}
 
 func loadConfig(environment string) (*viper.Viper, error) {
 	v := viper.New()
@@ -71,7 +71,7 @@ func loadConfig(environment string) (*viper.Viper, error) {
 
 func GetConfig() *Config {
 	if config == nil {
-		v, err := loadConfig(os.Getenv("environment"))
+		v, err := loadConfig(os.Getenv("ENVIRONMENT"))
 		if err != nil {
 			panic(err)
 		}
