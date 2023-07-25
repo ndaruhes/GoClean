@@ -1,17 +1,18 @@
 package usecases
 
 import (
-	"go-clean/domains/blogs"
-	"go-clean/domains/blogs/constants"
-	"go-clean/domains/blogs/entities"
-	"go-clean/models/messages"
-	"go-clean/models/requests"
-	"go-clean/models/responses"
-	"go-clean/shared/utils"
-	"go-clean/shared/validators"
-	"gorm.io/gorm"
+	"go-clean/src/domains/blogs"
+	"go-clean/src/domains/blogs/constants"
+	"go-clean/src/domains/blogs/entities"
+	"go-clean/src/models/messages"
+	"go-clean/src/models/requests"
+	"go-clean/src/models/responses"
+	"go-clean/src/shared/utils"
+	"go-clean/src/shared/validators"
 	"net/http"
 	"time"
+
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )

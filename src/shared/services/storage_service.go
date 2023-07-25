@@ -2,13 +2,14 @@ package services
 
 import (
 	"bytes"
-	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"go-clean/models/messages"
+	"go-clean/src/models/messages"
 	"io"
 	"time"
+
+	"cloud.google.com/go/storage"
+	"github.com/gin-gonic/gin"
 )
 
 type GoogleStorageConfig struct {

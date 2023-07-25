@@ -1,12 +1,13 @@
 package entities
 
 import (
-	"github.com/rs/xid"
-	user "go-clean/domains/users/entities"
-	"go-clean/shared/entities"
-	"gorm.io/gorm"
+	user "go-clean/src/domains/users/entities"
+	"go-clean/src/shared/entities"
 	"strings"
 	"time"
+
+	"github.com/rs/xid"
+	"gorm.io/gorm"
 )
 
 type Blog struct {

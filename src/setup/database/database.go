@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"go-clean/configs/app"
+	"go-clean/src/setup/app"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

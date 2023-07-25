@@ -1,7 +1,7 @@
 package entities
 
 import (
-	master "go-clean/domains/master/entities"
+	master "go-clean/src/domains/master/entities"
 )
 
 type BlogCategory struct {

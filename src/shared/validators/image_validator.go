@@ -3,12 +3,13 @@ package validators
 import (
 	"errors"
 	"fmt"
-	"go-clean/models/validations"
-	"golang.org/x/exp/slices"
+	"go-clean/src/models/validations"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"mime/multipart"
+
+	"golang.org/x/exp/slices"
 )
 
 var imageValidation = &validations.ImageValidation{

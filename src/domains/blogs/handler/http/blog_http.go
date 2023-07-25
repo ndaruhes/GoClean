@@ -1,19 +1,20 @@
 package http
 
 import (
-	"github.com/gin-gonic/gin"
-	"go-clean/configs/database"
-	"go-clean/domains/blogs"
-	blogRepository "go-clean/domains/blogs/repositories"
-	blogUseCase "go-clean/domains/blogs/usecases"
-	"go-clean/middlewares"
-	"go-clean/models/messages"
-	"go-clean/models/requests"
-	"go-clean/models/responses"
-	"go-clean/shared/utils"
-	"go-clean/shared/validators"
+	"go-clean/src/domains/blogs"
+	blogRepository "go-clean/src/domains/blogs/repositories"
+	blogUseCase "go-clean/src/domains/blogs/usecases"
+	"go-clean/src/middlewares"
+	"go-clean/src/models/messages"
+	"go-clean/src/models/requests"
+	"go-clean/src/models/responses"
+	"go-clean/src/setup/database"
+	"go-clean/src/shared/utils"
+	"go-clean/src/shared/validators"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type BlogHttp struct {

@@ -1,14 +1,14 @@
 package http
 
 import (
-	"go-clean/configs/database"
-	"go-clean/domains/auth"
-	authRepository "go-clean/domains/auth/repositories"
-	authUseCase "go-clean/domains/auth/usecases"
-	"go-clean/models/messages"
-	"go-clean/models/requests"
-	"go-clean/models/responses"
-	"go-clean/shared/validators"
+	"go-clean/src/domains/auth"
+	authRepository "go-clean/src/domains/auth/repositories"
+	authUseCase "go-clean/src/domains/auth/usecases"
+	"go-clean/src/models/messages"
+	"go-clean/src/models/requests"
+	"go-clean/src/models/responses"
+	"go-clean/src/setup/database"
+	"go-clean/src/shared/validators"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

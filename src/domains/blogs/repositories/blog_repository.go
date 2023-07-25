@@ -2,13 +2,14 @@ package repositories
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"go-clean/domains/blogs/entities"
-	"go-clean/models/messages"
-	"go-clean/models/responses"
-	"go-clean/shared/utils"
-	"gorm.io/gorm"
+	"go-clean/src/domains/blogs/entities"
+	"go-clean/src/models/messages"
+	"go-clean/src/models/responses"
+	"go-clean/src/shared/utils"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type BlogRepository struct {

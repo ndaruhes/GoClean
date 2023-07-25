@@ -1,10 +1,10 @@
 package migration
 
 import (
-	"go-clean/configs/database"
-	blogs "go-clean/domains/blogs/entities"
-	master "go-clean/domains/master/entities"
-	users "go-clean/domains/users/entities"
+	blogs "go-clean/src/domains/blogs/entities"
+	master "go-clean/src/domains/master/entities"
+	users "go-clean/src/domains/users/entities"
+	"go-clean/src/setup/database"
 )
 
 func Migrate() error {

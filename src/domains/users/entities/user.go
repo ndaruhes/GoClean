@@ -1,7 +1,7 @@
 package entities
 
 import (
-	"go-clean/shared/entities"
+	"go-clean/src/shared/entities"
 	"strings"
 
 	"github.com/rs/xid"

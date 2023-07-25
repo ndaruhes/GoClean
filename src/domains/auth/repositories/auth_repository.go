@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	"go-clean/domains/users/entities"
-	"go-clean/models/messages"
+	"go-clean/src/domains/users/entities"
+	"go-clean/src/models/messages"
 	"net/http"
 	"time"
 

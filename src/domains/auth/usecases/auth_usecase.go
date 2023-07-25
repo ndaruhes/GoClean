@@ -2,15 +2,16 @@ package usecases
 
 import (
 	"errors"
-	"go-clean/domains/auth"
-	"go-clean/domains/users/entities"
-	"go-clean/models/messages"
-	"go-clean/models/requests"
-	"go-clean/models/responses"
-	"go-clean/shared/helpers"
-	"go-clean/shared/validators"
-	"gorm.io/gorm"
+	"go-clean/src/domains/auth"
+	"go-clean/src/domains/users/entities"
+	"go-clean/src/models/messages"
+	"go-clean/src/models/requests"
+	"go-clean/src/models/responses"
+	"go-clean/src/shared/helpers"
+	"go-clean/src/shared/validators"
 	"net/http"
+
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )

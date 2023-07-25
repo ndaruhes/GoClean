@@ -2,11 +2,12 @@ package messages
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"go-clean/models/messages/locales"
-	"go-clean/models/responses"
-	"gorm.io/gorm"
+	"go-clean/src/models/messages/locales"
+	"go-clean/src/models/responses"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 var SuccessCodes = map[string]map[string]string{

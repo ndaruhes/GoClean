@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"go-clean/domains/users/entities"
-	"go-clean/models/requests"
-	"go-clean/models/responses"
+	"go-clean/src/domains/users/entities"
+	"go-clean/src/models/requests"
+	"go-clean/src/models/responses"
 
 	"github.com/gin-gonic/gin"
 )

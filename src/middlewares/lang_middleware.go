@@ -1,8 +1,8 @@
 package middlewares
 
 import (
-	"go-clean/configs/app"
-	"go-clean/shared/utils"
+	"go-clean/src/setup/app"
+	"go-clean/src/shared/utils"
 
 	"github.com/gin-gonic/gin"
 )

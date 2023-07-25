@@ -2,10 +2,11 @@ package helpers
 
 import (
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
-	"go-clean/models/responses"
+	"go-clean/src/models/responses"
 	"strings"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/gin-gonic/gin"
 )

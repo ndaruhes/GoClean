@@ -1,10 +1,11 @@
 package blogs
 
 import (
+	"go-clean/src/domains/blogs/entities"
+	"go-clean/src/models/requests"
+	"go-clean/src/models/responses"
+
 	"github.com/gin-gonic/gin"
-	"go-clean/domains/blogs/entities"
-	"go-clean/models/requests"
-	"go-clean/models/responses"
 )
 
 type BlogUseCase interface {

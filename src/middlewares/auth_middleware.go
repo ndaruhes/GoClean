@@ -1,11 +1,12 @@
 package middlewares
 
 import (
-	"github.com/gin-gonic/gin"
-	"go-clean/models/messages"
-	"go-clean/models/responses"
-	"go-clean/shared/helpers"
+	"go-clean/src/models/messages"
+	"go-clean/src/models/responses"
+	"go-clean/src/shared/helpers"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Authenticated() gin.HandlerFunc {
