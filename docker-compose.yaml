@@ -1,9 +1,10 @@
 version: '3.8'
 
 services:
-  web:
-    build: .
+  server:
+    container_name: go-clean
+    build:
+      dockerfile: Dockerfile
+      context: ./
     ports:
-      - 3000:3000
-    volumes:
-      - .:/usr/src/app
+      - 8001:8000
