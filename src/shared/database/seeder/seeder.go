@@ -6,20 +6,20 @@ import (
 )
 
 type Seeder struct {
-	Seeder interface{}
+	Factory interface{}
 }
 
 func RegisterSeeders() []Seeder {
 	return []Seeder{
-		{Seeder: factories.UserFactory()},
-		{Seeder: factories.BlogFactory()},
+		{Factory: factories.UserFactory()},
+		{Factory: factories.BlogFactory()},
 	}
 }
 
 func DBSeed() error {
 	db := infrastructures.ConnectDatabase()
 	for _, seeder := range RegisterSeeders() {
-		err := db.Debug().Create(seeder.Seeder).Error
+		err := db.Debug().Create(seeder.Factory).Error
 		if err != nil {
 			return err
 		}
