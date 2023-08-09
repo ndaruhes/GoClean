@@ -1,9 +1,8 @@
-package database
+package infrastructures
 
 import (
 	"fmt"
-	"go-clean/src/setup/app"
-
+	"go-clean/src/app/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -14,7 +13,7 @@ var db *gorm.DB
 func ConnectDatabase() *gorm.DB {
 	var dsn string
 	if db == nil {
-		conf := app.GetConfig().Database
+		conf := config.GetConfig().Database
 		if conf.Password == "" {
 			dsn = fmt.Sprintf("%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", conf.Username, conf.Host, conf.Port, conf.Name)
 		} else {

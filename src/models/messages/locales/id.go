@@ -11,6 +11,7 @@ var SuccessID = map[string]string{
 
 	//	DATABASE LISTS
 	"SUCCESS-DB-0001": "Sukses migrasi database",
+	"SUCCESS-DB-0002": "Sukses mengisi data ke database",
 
 	//	BLOG LISTS
 	"SUCCESS-BLOG-0001": "Blog berhasil dibuat",
@@ -41,7 +42,7 @@ var ErrorID = map[string]string{
 	"ERROR-404001": "Data tidak ditemukan",
 
 	//	ERROR 500 LISTS
-	"ERROR-50001": "Gagal migrasi database",
+	"ERROR-50001": "Gagal migrasi infrastructures",
 	"ERROR-50002": "Migrate key tidak valid",
 	"ERROR-50003": "Upps, terjadi kesalahan",
 }

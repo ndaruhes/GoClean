@@ -1,6 +1,7 @@
 package http
 
 import (
+	"go-clean/src/app/infrastructures"
 	"go-clean/src/domains/blogs"
 	blogRepository "go-clean/src/domains/blogs/repositories"
 	blogUseCase "go-clean/src/domains/blogs/usecases"
@@ -8,7 +9,6 @@ import (
 	"go-clean/src/models/messages"
 	"go-clean/src/models/requests"
 	"go-clean/src/models/responses"
-	"go-clean/src/setup/database"
 	"go-clean/src/shared/utils"
 	"go-clean/src/shared/validators"
 	"net/http"
@@ -22,7 +22,7 @@ type BlogHttp struct {
 }
 
 func NewBlogHttp(route *gin.Engine) *BlogHttp {
-	db := database.ConnectDatabase()
+	db := infrastructures.ConnectDatabase()
 	blogRepo := blogRepository.NewBlogRepository(db)
 	blogUc := blogUseCase.NewBlogUseCase(blogRepo, db)
 

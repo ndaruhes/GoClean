@@ -15,7 +15,7 @@ type Blog struct {
 	Title       *string    `json:"title" gorm:"type:varchar(255);null"`
 	Slug        string     `json:"slug" gorm:"index:slug,unique,type:varchar(255);not null"`
 	Cover       *string    `json:"cover" gorm:"type:varchar(255);null"`
-	Content     *string    `json:"content" gorm:"type:varchar(255);null"`
+	Content     *string    `json:"content" gorm:"type:text;null"`
 	Status      string     `json:"status" gorm:"type:enum('Draft', 'Published');default:'Draft';not null"`
 	PublishedAt *time.Time `json:"published_at"`
 	UserID      string     `json:"user_id" gorm:"type:varchar(255);not null"`

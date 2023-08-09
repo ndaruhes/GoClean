@@ -1,13 +1,13 @@
 package http
 
 import (
+	"go-clean/src/app/infrastructures"
 	"go-clean/src/domains/auth"
 	authRepository "go-clean/src/domains/auth/repositories"
 	authUseCase "go-clean/src/domains/auth/usecases"
 	"go-clean/src/models/messages"
 	"go-clean/src/models/requests"
 	"go-clean/src/models/responses"
-	"go-clean/src/setup/database"
 	"go-clean/src/shared/validators"
 	"net/http"
 
@@ -19,7 +19,7 @@ type AuthHttp struct {
 }
 
 func NewAuthHttp(route *gin.Engine) *AuthHttp {
-	db := database.ConnectDatabase()
+	db := infrastructures.ConnectDatabase()
 	authRepo := authRepository.NewAuthRepository(db)
 	authUc := authUseCase.NewAuthUseCase(authRepo)
 

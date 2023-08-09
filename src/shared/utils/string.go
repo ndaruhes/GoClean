@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"math/rand"
 	"regexp"
 	"strings"
 	"time"
@@ -16,4 +17,9 @@ func GenerateSlug(text string) string {
 	text = strings.Trim(text, "-") + "-" + time.Now().UTC().Format("20060102150405")
 
 	return text
+}
+
+func GetRandomString(data []string) string {
+	idx := rand.Intn(len(data))
+	return data[idx]
 }

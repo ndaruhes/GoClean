@@ -11,6 +11,7 @@ var SuccessEN = map[string]string{
 
 	//	DATABASE LISTS
 	"SUCCESS-DB-0001": "Success migrate database",
+	"SUCCESS-DB-0002": "Success seed data to database",
 
 	//	BLOG LISTS
 	"SUCCESS-BLOG-0001": "Blog successfully created",
@@ -41,7 +42,7 @@ var ErrorEN = map[string]string{
 	"ERROR-404001": "Data not found",
 
 	//	ERROR 500 LISTS
-	"ERROR-50001": "Failed to migrate database",
+	"ERROR-50001": "Failed to migrate infrastructures",
 	"ERROR-50002": "Migrate key doesn't valid",
 	"ERROR-50003": "Upps, something went wrong",
 }
