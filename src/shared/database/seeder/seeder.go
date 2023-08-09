@@ -11,18 +11,56 @@ type Seeder struct {
 
 func RegisterSeeders() []Seeder {
 	return []Seeder{
+		// MASTER
+		{Factory: factories.CategoryBlogFactory()},
+		{Factory: factories.CategoryBlogLangFactory()},
+
+		// USER
 		{Factory: factories.UserFactory()},
+
+		// BLOG
 		{Factory: factories.BlogFactory()},
+		{Factory: factories.BlogCategoryFactory()},
 	}
 }
 
+//func DBSeed() error {
+//	db := infrastructures.ConnectDatabase()
+//	for _, seeder := range RegisterSeeders() {
+//		err := db.Debug().Create(seeder.Factory).Error
+//		if err != nil {
+//			return err
+//		}
+//	}
+//
+//	return nil
+//}
+
 func DBSeed() error {
 	db := infrastructures.ConnectDatabase()
-	for _, seeder := range RegisterSeeders() {
-		err := db.Debug().Create(seeder.Factory).Error
-		if err != nil {
-			return err
-		}
+	err := db.Debug().Create(factories.CategoryBlogFactory()).Error
+	if err != nil {
+		return err
+	}
+
+	err = db.Debug().Create(factories.CategoryBlogLangFactory()).Error
+	if err != nil {
+		return err
+	}
+
+	err = db.Debug().Create(factories.UserFactory()).Error
+	if err != nil {
+		return err
+	}
+
+	err = db.Debug().Create(factories.BlogFactory()).Error
+	if err != nil {
+		return err
+	}
+
+	err = db.Debug().Create(factories.BlogCategoryFactory()).Error
+	if err != nil {
+		return err
 	}
 
 	return nil
