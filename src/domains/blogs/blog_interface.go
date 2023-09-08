@@ -5,31 +5,31 @@ import (
 	"go-clean/src/models/requests"
 	"go-clean/src/models/responses"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 type BlogUseCase interface {
 	// BLOG USECASE
-	GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlogListsResponse, error)
-	CreateBlog(ctx *gin.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error
-	AdjustBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
-	PublishBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
-	UpdateBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
-	UpdateSlug(ctx *gin.Context, blogID string, request *requests.UpdateSlugRequest) error
-	UpdateBlogToDraft(ctx *gin.Context, blogID string) error
-	DeleteBlog(ctx *gin.Context, blogID string) error
+	GetPublicBlogList(ctx *fiber.Ctx) (*responses.PublicBlogListsResponse, error)
+	CreateBlog(ctx *fiber.Ctx, request *requests.UpsertBlogRequest, file []byte, fileName string) error
+	AdjustBlog(ctx *fiber.Ctx, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
+	PublishBlog(ctx *fiber.Ctx, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
+	UpdateBlog(ctx *fiber.Ctx, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
+	UpdateSlug(ctx *fiber.Ctx, blogID string, request *requests.UpdateSlugRequest) error
+	UpdateBlogToDraft(ctx *fiber.Ctx, blogID string) error
+	DeleteBlog(ctx *fiber.Ctx, blogID string) error
 }
 
 type BlogRepository interface {
 	// BLOG REPOSITORY
-	FindBlogById(ctx *gin.Context, id string) (*entities.Blog, error)
-	FindBlogBySlug(ctx *gin.Context, slug string) (*entities.Blog, error)
-	GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlogListsResponse, error)
-	CreateBlog(ctx *gin.Context, blog *entities.Blog) (*entities.Blog, error)
-	UpdateBlog(ctx *gin.Context, blogID string, blogStatusCheck string, blog *entities.Blog) error
-	DeleteBlog(ctx *gin.Context, blogID string) error
+	FindBlogById(ctx *fiber.Ctx, id string) (*entities.Blog, error)
+	FindBlogBySlug(ctx *fiber.Ctx, slug string) (*entities.Blog, error)
+	GetPublicBlogList(ctx *fiber.Ctx) (*responses.PublicBlogListsResponse, error)
+	CreateBlog(ctx *fiber.Ctx, blog *entities.Blog) (*entities.Blog, error)
+	UpdateBlog(ctx *fiber.Ctx, blogID string, blogStatusCheck string, blog *entities.Blog) error
+	DeleteBlog(ctx *fiber.Ctx, blogID string) error
 
 	// BLOG CATEGORY REPOSITORY
-	CreateBlogCategory(ctx *gin.Context, blogCategory []entities.BlogCategory) error
-	UpdateBlogCategory(ctx *gin.Context, blogID string, blogCategory []entities.BlogCategory) error
+	CreateBlogCategory(ctx *fiber.Ctx, blogCategory []entities.BlogCategory) error
+	UpdateBlogCategory(ctx *fiber.Ctx, blogID string, blogCategory []entities.BlogCategory) error
 }

@@ -11,9 +11,8 @@ import (
 	"go-clean/src/shared/validators"
 	"net/http"
 
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
-
-	"github.com/gin-gonic/gin"
 )
 
 type AuthUseCase struct {
@@ -26,7 +25,7 @@ func NewAuthUseCase(authRepo auth.AuthRepository) *AuthUseCase {
 	}
 }
 
-func (uc *AuthUseCase) RegisterByPass(ctx *gin.Context, request *requests.RegisterWithEmailPasswordRequest) error {
+func (uc *AuthUseCase) RegisterByPass(ctx *fiber.Ctx, request *requests.RegisterWithEmailPasswordRequest) error {
 	user, err := uc.authRepo.FindByEmail(ctx, request.Email)
 	if user != nil {
 		return &messages.ErrorWrapper{
@@ -63,7 +62,7 @@ func (uc *AuthUseCase) RegisterByPass(ctx *gin.Context, request *requests.Regist
 	return nil
 }
 
-func (uc *AuthUseCase) LoginByPass(ctx *gin.Context, request *requests.LoginRequest) (*responses.LoginResponse, error) {
+func (uc *AuthUseCase) LoginByPass(ctx *fiber.Ctx, request *requests.LoginRequest) (*responses.LoginResponse, error) {
 	user, err := uc.authRepo.FindByEmail(ctx, request.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -99,6 +98,7 @@ func (uc *AuthUseCase) LoginByPass(ctx *gin.Context, request *requests.LoginRequ
 	}
 
 	return &responses.LoginResponse{
+		Role:  user.Role,
 		Token: token,
 	}, nil
 }

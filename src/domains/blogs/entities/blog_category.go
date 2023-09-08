@@ -5,6 +5,7 @@ import (
 )
 
 type BlogCategory struct {
+	ID             int    `json:"id" gorm:"primaryKey;autoIncrement"`
 	BlogID         string `json:"blog_id"`
 	CategoryBlogID int    `json:"category_blog_id"`
 	Blog           Blog

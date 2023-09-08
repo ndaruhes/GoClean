@@ -24,18 +24,6 @@ func RegisterSeeders() []Seeder {
 	}
 }
 
-//func DBSeed() error {
-//	db := infrastructures.ConnectDatabase()
-//	for _, seeder := range RegisterSeeders() {
-//		err := db.Debug().Create(seeder.Factory).Error
-//		if err != nil {
-//			return err
-//		}
-//	}
-//
-//	return nil
-//}
-
 func DBSeed() error {
 	db := infrastructures.ConnectDatabase()
 	err := db.Debug().Create(factories.CategoryBlogFactory()).Error

@@ -1,26 +1,26 @@
 package utils
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
-func GetDb(ctx *gin.Context, db *gorm.DB) *gorm.DB {
-	tx := ctx.Value("tx")
+func GetDb(ctx *fiber.Ctx, db *gorm.DB) *gorm.DB {
+	tx := ctx.Locals("tx")
 	if tx != nil {
 		return tx.(*gorm.DB)
 	}
 	return db
 }
 
-func BeginTransaction(ctx *gin.Context, db *gorm.DB) *gorm.DB {
+func BeginTransaction(ctx *fiber.Ctx, db *gorm.DB) *gorm.DB {
 	tx := db.Begin()
-	ctx.Set("tx", tx)
+	ctx.Locals("tx", tx)
 	return tx
 }
 
-func Commit(ctx *gin.Context) {
-	tx := ctx.Value("tx")
+func Commit(ctx *fiber.Ctx) {
+	tx := ctx.Locals("tx")
 	if tx != nil {
 		db := tx.(*gorm.DB)
 		db.Commit()

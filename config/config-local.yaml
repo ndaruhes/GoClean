@@ -11,6 +11,6 @@ app:
 database:
   host: localhost
   port: 3306
-  name: ndaruhes_fresh_test
+  name: ndaruhes_fresh
   username: root
   password:

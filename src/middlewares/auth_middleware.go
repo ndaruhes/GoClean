@@ -6,27 +6,26 @@ import (
 	"go-clean/src/shared/helpers"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
-func Authenticated() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func Authenticated() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
 		user, err := helpers.VerifyToken(ctx)
 		if err != nil {
 			messages.SendErrorResponse(ctx, responses.ErrorResponse{
 				Error:      err,
 				StatusCode: http.StatusUnauthorized,
 			})
-			ctx.Abort()
-			return
+			return nil
 		}
 
 		if user.Role == "Member" {
-			ctx.Set("member", user)
+			ctx.Locals("member", user)
 		} else {
-			ctx.Set("admin", user)
+			ctx.Locals("admin", user)
 		}
 
-		ctx.Next()
+		return ctx.Next()
 	}
 }

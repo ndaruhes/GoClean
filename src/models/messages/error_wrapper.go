@@ -1,11 +1,12 @@
 package messages
 
 import (
-	"github.com/gin-gonic/gin"
+	"errors"
+	"github.com/gofiber/fiber/v2"
 )
 
 type ErrorWrapper struct {
-	Context    *gin.Context
+	Context    *fiber.Ctx
 	Err        error
 	ErrorCode  string
 	Parameters []string
@@ -13,7 +14,7 @@ type ErrorWrapper struct {
 }
 
 func (wrapper *ErrorWrapper) Error() string {
-	lang := wrapper.Context.Value("lang").(string)
+	lang := wrapper.Context.Locals("lang").(string)
 	if wrapper.Err == nil || wrapper.ErrorCode == "" {
 		return ErrorCodes[lang]["ERROR-50003"]
 	}
@@ -21,8 +22,9 @@ func (wrapper *ErrorWrapper) Error() string {
 }
 
 func HasError(err error) bool {
-	switch err.(type) {
-	case *ErrorWrapper:
+	var errorWrapper *ErrorWrapper
+	switch {
+	case errors.As(err, &errorWrapper):
 		return err.(*ErrorWrapper).Err != nil || err.(*ErrorWrapper).ErrorCode != ""
 	default:
 		return err != nil

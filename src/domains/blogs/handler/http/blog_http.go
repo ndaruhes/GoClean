@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"go-clean/src/app/infrastructures"
 	"go-clean/src/domains/blogs"
 	blogRepository "go-clean/src/domains/blogs/repositories"
@@ -13,15 +14,14 @@ import (
 	"go-clean/src/shared/validators"
 	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 type BlogHttp struct {
 	blogUc blogs.BlogUseCase
 }
 
-func NewBlogHttp(route *gin.Engine) *BlogHttp {
+func NewBlogHttp(route *fiber.App) *BlogHttp {
 	db := infrastructures.ConnectDatabase()
 	blogRepo := blogRepository.NewBlogRepository(db)
 	blogUc := blogUseCase.NewBlogUseCase(blogRepo, db)
@@ -32,24 +32,24 @@ func NewBlogHttp(route *gin.Engine) *BlogHttp {
 	return handler
 }
 
-func setRoutes(route *gin.Engine, handler *BlogHttp) {
+func setRoutes(route *fiber.App, handler *BlogHttp) {
 	blog := route.Group("blog")
 	{
 		blog.Use(middlewares.Authenticated())
-		blog.POST("", handler.CreateBlog)
-		blog.PUT("/:id/edit", handler.AdjustBlog)
-		blog.PUT("/:id/publish", handler.PublishBlog)
-		blog.PUT("/:id", handler.UpdateBlog)
-		blog.DELETE("/:id", handler.DeleteBlog)
-		blog.PUT("/:id/slug", handler.UpdateSlug)
-		blog.PUT("/:id/draft", handler.UpdateToDraft)
+		blog.Post("", handler.CreateBlog)
+		blog.Put("/:id/edit", handler.AdjustBlog)
+		blog.Put("/:id/publish", handler.PublishBlog)
+		blog.Put("/:id", handler.UpdateBlog)
+		blog.Delete("/:id", handler.DeleteBlog)
+		blog.Put("/:id/slug", handler.UpdateSlug)
+		blog.Put("/:id/draft", handler.UpdateToDraft)
 	}
 }
 
-func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
+func (handler *BlogHttp) CreateBlog(ctx *fiber.Ctx) error {
 	request := &requests.UpsertBlogRequest{
-		Title:   ctx.PostForm("title"),
-		Content: ctx.PostForm("content"),
+		Title:   ctx.FormValue("title"),
+		Content: ctx.FormValue("content"),
 	}
 
 	blogCategoryIds := handleBlogCategories(ctx)
@@ -60,52 +60,53 @@ func (handler *BlogHttp) CreateBlog(ctx *gin.Context) {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
-
-		return
+	} else {
+		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+			SuccessCode: "SUCCESS-BLOG-0001",
+		})
 	}
 
-	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-		SuccessCode: "SUCCESS-BLOG-0001",
-	})
+	return nil
 }
 
-func (handler *BlogHttp) AdjustBlog(ctx *gin.Context) {
+func (handler *BlogHttp) AdjustBlog(ctx *fiber.Ctx) error {
 	request := &requests.UpsertBlogRequest{
-		Title:   ctx.PostForm("title"),
-		Content: ctx.PostForm("content"),
+		Title:   ctx.FormValue("title"),
+		Content: ctx.FormValue("content"),
 	}
 
 	blogCategoryIds := handleBlogCategories(ctx)
 	request.BlogCategoryIds = blogCategoryIds
 
 	file, fileName := handleSingleFile(ctx)
-	if err := handler.blogUc.AdjustBlog(ctx, ctx.Param("id"), request, file, fileName); err != nil {
+	if err := handler.blogUc.AdjustBlog(ctx, ctx.Params("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
-		return
+	} else {
+		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+			SuccessCode: "SUCCESS-BLOG-0002",
+		})
 	}
 
-	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-		SuccessCode: "SUCCESS-BLOG-0002",
-	})
+	return nil
 }
 
-func (handler *BlogHttp) PublishBlog(ctx *gin.Context) {
+func (handler *BlogHttp) PublishBlog(ctx *fiber.Ctx) error {
 	request := &requests.UpsertBlogRequest{
-		Title:   ctx.PostForm("title"),
-		Content: ctx.PostForm("content"),
+		Title:   ctx.FormValue("title"),
+		Content: ctx.FormValue("content"),
 	}
 
 	blogCategoryIds := handleBlogCategories(ctx)
 	request.BlogCategoryIds = blogCategoryIds
 
-	if err := ctx.ShouldBind(&request); err != nil {
+	if err := ctx.BodyParser(&request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
 		})
-		return
+		return nil
 	}
 
 	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
@@ -114,37 +115,38 @@ func (handler *BlogHttp) PublishBlog(ctx *gin.Context) {
 			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
 		})
-		return
+		return nil
 	}
 
 	file, fileName := handleSingleFile(ctx)
-	if err := handler.blogUc.PublishBlog(ctx, ctx.Param("id"), request, file, fileName); err != nil {
+	if err := handler.blogUc.PublishBlog(ctx, ctx.Params("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
-		return
+	} else {
+		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+			SuccessCode: "SUCCESS-BLOG-0004",
+		})
 	}
 
-	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-		SuccessCode: "SUCCESS-BLOG-0004",
-	})
+	return nil
 }
 
-func (handler *BlogHttp) UpdateBlog(ctx *gin.Context) {
+func (handler *BlogHttp) UpdateBlog(ctx *fiber.Ctx) error {
 	request := &requests.UpsertBlogRequest{
-		Title:   ctx.PostForm("title"),
-		Content: ctx.PostForm("content"),
+		Title:   ctx.FormValue("title"),
+		Content: ctx.FormValue("content"),
 	}
 
 	blogCategoryIds := handleBlogCategories(ctx)
 	request.BlogCategoryIds = blogCategoryIds
 
-	if err := ctx.ShouldBind(&request); err != nil {
+	if err := ctx.BodyParser(&request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
 		})
-		return
+		return nil
 	}
 
 	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
@@ -153,42 +155,44 @@ func (handler *BlogHttp) UpdateBlog(ctx *gin.Context) {
 			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
 		})
-		return
+		return nil
 	}
 
 	file, fileName := handleSingleFile(ctx)
-	if err := handler.blogUc.UpdateBlog(ctx, ctx.Param("id"), request, file, fileName); err != nil {
+	if err := handler.blogUc.UpdateBlog(ctx, ctx.Params("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
-		return
+	} else {
+		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+			SuccessCode: "SUCCESS-BLOG-0002",
+		})
 	}
 
-	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-		SuccessCode: "SUCCESS-BLOG-0002",
-	})
+	return nil
 }
 
-func (handler *BlogHttp) DeleteBlog(ctx *gin.Context) {
-	if err := handler.blogUc.DeleteBlog(ctx, ctx.Param("id")); err != nil {
+func (handler *BlogHttp) DeleteBlog(ctx *fiber.Ctx) error {
+	if err := handler.blogUc.DeleteBlog(ctx, ctx.Params("id")); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
-		return
+	} else {
+		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+			SuccessCode: "SUCCESS-BLOG-0003",
+		})
 	}
 
-	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-		SuccessCode: "SUCCESS-BLOG-0003",
-	})
+	return nil
 }
 
-func (handler *BlogHttp) UpdateSlug(ctx *gin.Context) {
+func (handler *BlogHttp) UpdateSlug(ctx *fiber.Ctx) error {
 	request := &requests.UpdateSlugRequest{}
-	if err := ctx.ShouldBindJSON(request); err != nil {
+	if err := ctx.BodyParser(request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
-		return
+		return nil
 	}
 
 	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
@@ -197,38 +201,41 @@ func (handler *BlogHttp) UpdateSlug(ctx *gin.Context) {
 			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
 		})
-		return
+		return nil
 	}
 
-	if err := handler.blogUc.UpdateSlug(ctx, ctx.Param("id"), request); err != nil {
+	if err := handler.blogUc.UpdateSlug(ctx, ctx.Params("id"), request); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
-		return
+	} else {
+		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+			SuccessCode: "SUCCESS-BLOG-0005",
+		})
 	}
 
-	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-		SuccessCode: "SUCCESS-BLOG-0005",
-	})
+	return nil
 }
 
-func (handler *BlogHttp) UpdateToDraft(ctx *gin.Context) {
-	if err := handler.blogUc.UpdateBlogToDraft(ctx, ctx.Param("id")); err != nil {
+func (handler *BlogHttp) UpdateToDraft(ctx *fiber.Ctx) error {
+	if err := handler.blogUc.UpdateBlogToDraft(ctx, ctx.Params("id")); err != nil {
 		messages.SendErrorResponse(ctx, responses.ErrorResponse{
 			Error: err,
 		})
-		return
+	} else {
+		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+			SuccessCode: "SUCCESS-BLOG-0006",
+		})
 	}
 
-	messages.SendSuccessResponse(ctx, responses.SuccessResponse{
-		SuccessCode: "SUCCESS-BLOG-0006",
-	})
+	return nil
 }
 
-func handleBlogCategories(ctx *gin.Context) []int {
-	blogCategoryIds, _ := ctx.GetPostFormArray("blogCategoryIds[]")
-	convertedCategoryIds := make([]int, len(blogCategoryIds))
-	for i, id := range blogCategoryIds {
+func handleBlogCategories(ctx *fiber.Ctx) []int {
+	blogCategoryIds := ctx.FormValue("blogCategoryIds")
+	idStrings := strings.Split(blogCategoryIds, ",")
+	var convertedCategoryIds []int
+	for _, id := range idStrings {
 		convertedId, err := strconv.Atoi(id)
 		if err != nil {
 			messages.SendErrorResponse(ctx, responses.ErrorResponse{
@@ -237,13 +244,13 @@ func handleBlogCategories(ctx *gin.Context) []int {
 			})
 			return nil
 		}
-		convertedCategoryIds[i] = convertedId
+		convertedCategoryIds = append(convertedCategoryIds, convertedId)
 	}
 
 	return convertedCategoryIds
 }
 
-func handleSingleFile(ctx *gin.Context) ([]byte, string) {
+func handleSingleFile(ctx *fiber.Ctx) ([]byte, string) {
 	var (
 		file     []byte
 		fileName string

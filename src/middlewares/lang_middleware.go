@@ -4,16 +4,16 @@ import (
 	"go-clean/src/app/config"
 	"go-clean/src/shared/utils"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
-func LangMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if c.Request.Header.Get("lang") == "" {
-			c.Request.Header.Set("lang", config.GetConfig().App.Locale)
+func LangMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if c.Get("lang") == "" {
+			lang := c.Get("lang", config.GetConfig().App.Locale)
+			c.Locals("lang", lang)
+			utils.OverrideFiberRequest(c, "lang", lang)
 		}
-		c.Set("lang", c.GetHeader("lang"))
-		utils.OverrideGinRequest(c, "lang", c.GetHeader("lang"))
-		c.Next()
+		return c.Next()
 	}
 }

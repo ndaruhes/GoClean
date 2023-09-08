@@ -1,11 +1,9 @@
 package utils
 
 import (
-	"context"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
-func OverrideGinRequest(ctx *gin.Context, key string, value interface{}) {
-	c := context.WithValue(ctx.Request.Context(), key, value)
-	ctx.Request = ctx.Request.WithContext(c)
+func OverrideFiberRequest(ctx *fiber.Ctx, key string, value interface{}) {
+	ctx.Locals(key, value)
 }

@@ -6,9 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-
-	"github.com/gin-gonic/gin"
 )
 
 var secretKey = "key"
@@ -31,9 +30,9 @@ func GenerateToken(id string, email string, role string) (string, error) {
 	return signedToken, nil
 }
 
-func VerifyToken(ctx *gin.Context) (*responses.TokenDecoded, error) {
+func VerifyToken(ctx *fiber.Ctx) (*responses.TokenDecoded, error) {
 	errResponse := errors.New("sign in to proceed")
-	headerToken := ctx.Request.Header.Get("Authorization")
+	headerToken := ctx.Get("Authorization")
 	bearer := strings.HasPrefix(headerToken, "Bearer")
 
 	if !bearer {

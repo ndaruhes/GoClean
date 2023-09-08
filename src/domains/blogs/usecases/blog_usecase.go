@@ -12,9 +12,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
-
-	"github.com/gin-gonic/gin"
 )
 
 type BlogUseCase struct {
@@ -29,14 +28,14 @@ func NewBlogUseCase(blogRepo blogs.BlogRepository, db *gorm.DB) *BlogUseCase {
 	}
 }
 
-func (uc *BlogUseCase) GetPublicBlogList(ctx *gin.Context) (*responses.PublicBlogListsResponse, error) {
+func (uc *BlogUseCase) GetPublicBlogList(ctx *fiber.Ctx) (*responses.PublicBlogListsResponse, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
 // BLOG USECASE
-func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
-	user := ctx.Value("member").(*responses.TokenDecoded)
+func (uc *BlogUseCase) CreateBlog(ctx *fiber.Ctx, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
+	user := ctx.Locals("member").(*responses.TokenDecoded)
 
 	title := "Untitled Blog"
 	if request.Title != "" {
@@ -104,7 +103,7 @@ func (uc *BlogUseCase) CreateBlog(ctx *gin.Context, request *requests.UpsertBlog
 	return nil
 }
 
-func (uc *BlogUseCase) AdjustBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
+func (uc *BlogUseCase) AdjustBlog(ctx *fiber.Ctx, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -158,7 +157,7 @@ func (uc *BlogUseCase) AdjustBlog(ctx *gin.Context, blogID string, request *requ
 	return nil
 }
 
-func (uc *BlogUseCase) PublishBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
+func (uc *BlogUseCase) PublishBlog(ctx *fiber.Ctx, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -212,7 +211,7 @@ func (uc *BlogUseCase) PublishBlog(ctx *gin.Context, blogID string, request *req
 	return nil
 }
 
-func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
+func (uc *BlogUseCase) UpdateBlog(ctx *fiber.Ctx, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -256,7 +255,7 @@ func (uc *BlogUseCase) UpdateBlog(ctx *gin.Context, blogID string, request *requ
 	return nil
 }
 
-func (uc *BlogUseCase) UpdateSlug(ctx *gin.Context, blogID string, request *requests.UpdateSlugRequest) error {
+func (uc *BlogUseCase) UpdateSlug(ctx *fiber.Ctx, blogID string, request *requests.UpdateSlugRequest) error {
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -282,7 +281,7 @@ func (uc *BlogUseCase) UpdateSlug(ctx *gin.Context, blogID string, request *requ
 	return nil
 }
 
-func (uc *BlogUseCase) UpdateBlogToDraft(ctx *gin.Context, blogID string) error {
+func (uc *BlogUseCase) UpdateBlogToDraft(ctx *fiber.Ctx, blogID string) error {
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -308,7 +307,7 @@ func (uc *BlogUseCase) UpdateBlogToDraft(ctx *gin.Context, blogID string) error 
 	return nil
 }
 
-func (uc *BlogUseCase) DeleteBlog(ctx *gin.Context, blogID string) error {
+func (uc *BlogUseCase) DeleteBlog(ctx *fiber.Ctx, blogID string) error {
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -323,7 +322,7 @@ func (uc *BlogUseCase) DeleteBlog(ctx *gin.Context, blogID string) error {
 	return uc.blogRepo.DeleteBlog(ctx, blogID)
 }
 
-func validateStatusAndStruct(ctx *gin.Context, blog *entities.Blog, wantStatus string, payload *entities.Blog) error {
+func validateStatusAndStruct(ctx *fiber.Ctx, blog *entities.Blog, wantStatus string, payload *entities.Blog) error {
 	if blog.Status != wantStatus {
 		return &messages.ErrorWrapper{
 			Context:    ctx,
@@ -343,7 +342,7 @@ func validateStatusAndStruct(ctx *gin.Context, blog *entities.Blog, wantStatus s
 	return nil
 }
 
-func updateBlogCategory(ctx *gin.Context, blog *entities.Blog, request *requests.UpsertBlogRequest, uc *BlogUseCase, tx *gorm.DB) error {
+func updateBlogCategory(ctx *fiber.Ctx, blog *entities.Blog, request *requests.UpsertBlogRequest, uc *BlogUseCase, tx *gorm.DB) error {
 	var blogCategoryPayload []entities.BlogCategory
 	for _, id := range request.BlogCategoryIds {
 		blogCategoryPayload = append(blogCategoryPayload, entities.BlogCategory{
@@ -364,8 +363,8 @@ func updateBlogCategory(ctx *gin.Context, blog *entities.Blog, request *requests
 	return nil
 }
 
-func uploadAndDeleteSingleFile(ctx *gin.Context, blog *entities.Blog, file []byte, fileName string) error {
-	user := ctx.Value("member").(*responses.TokenDecoded)
+func uploadAndDeleteSingleFile(ctx *fiber.Ctx, blog *entities.Blog, file []byte, fileName string) error {
+	user := ctx.Locals("member").(*responses.TokenDecoded)
 
 	if file != nil && fileName != "" {
 		compressed, err := utils.CompressFile(file, 70)
