@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"context"
 	"errors"
 	"go-clean/src/domains/auth"
 	"go-clean/src/domains/users/entities"
@@ -11,7 +12,6 @@ import (
 	"go-clean/src/shared/validators"
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +25,7 @@ func NewAuthUseCase(authRepo auth.AuthRepository) *AuthUseCase {
 	}
 }
 
-func (uc *AuthUseCase) RegisterByPass(ctx *fiber.Ctx, request *requests.RegisterWithEmailPasswordRequest) error {
+func (uc *AuthUseCase) RegisterByPass(ctx context.Context, request *requests.RegisterWithEmailPasswordRequest) error {
 	user, err := uc.authRepo.FindByEmail(ctx, request.Email)
 	if user != nil {
 		return &messages.ErrorWrapper{
@@ -62,7 +62,7 @@ func (uc *AuthUseCase) RegisterByPass(ctx *fiber.Ctx, request *requests.Register
 	return nil
 }
 
-func (uc *AuthUseCase) LoginByPass(ctx *fiber.Ctx, request *requests.LoginRequest) (*responses.LoginResponse, error) {
+func (uc *AuthUseCase) LoginByPass(ctx context.Context, request *requests.LoginRequest) (*responses.LoginResponse, error) {
 	user, err := uc.authRepo.FindByEmail(ctx, request.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

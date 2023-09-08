@@ -25,13 +25,13 @@ import (
 type injection struct {
 	payload interface{}
 	db      *gorm.DB
-	ctx     *fiber.Ctx
+	ctx     context.Context
 }
 
-func ValidateStruct(ctx *fiber.Ctx, payload interface{}) (map[string][]string, error) {
+func ValidateStruct(ctx context.Context, payload interface{}) (map[string][]string, error) {
 	validate := validator.New()
 	registerTagName(validate)
-	trans := registerLanguage(validate, ctx.Locals("lang").(string))
+	trans := registerLanguage(validate, ctx.Value("lang").(string))
 
 	inject := injection{
 		payload: payload,

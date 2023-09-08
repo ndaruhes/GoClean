@@ -1,12 +1,12 @@
 package messages
 
 import (
+	"context"
 	"errors"
-	"github.com/gofiber/fiber/v2"
 )
 
 type ErrorWrapper struct {
-	Context    *fiber.Ctx
+	Context    context.Context
 	Err        error
 	ErrorCode  string
 	Parameters []string
@@ -14,7 +14,7 @@ type ErrorWrapper struct {
 }
 
 func (wrapper *ErrorWrapper) Error() string {
-	lang := wrapper.Context.Locals("lang").(string)
+	lang := wrapper.Context.Value("lang").(string)
 	if wrapper.Err == nil || wrapper.ErrorCode == "" {
 		return ErrorCodes[lang]["ERROR-50003"]
 	}

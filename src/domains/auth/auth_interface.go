@@ -1,21 +1,20 @@
 package auth
 
 import (
+	"context"
 	"go-clean/src/domains/users/entities"
 	"go-clean/src/models/requests"
 	"go-clean/src/models/responses"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 type AuthUseCase interface {
-	LoginByPass(ctx *fiber.Ctx, request *requests.LoginRequest) (*responses.LoginResponse, error)
-	RegisterByPass(ctx *fiber.Ctx, request *requests.RegisterWithEmailPasswordRequest) error
+	LoginByPass(ctx context.Context, request *requests.LoginRequest) (*responses.LoginResponse, error)
+	RegisterByPass(ctx context.Context, request *requests.RegisterWithEmailPasswordRequest) error
 }
 
 type AuthRepository interface {
-	RegisterByPass(ctx *fiber.Ctx, user *entities.User) error
-	FindUserByOAuthTokenId(ctx *fiber.Ctx, tokenId string) (*entities.User, error)
-	FindByEmail(ctx *fiber.Ctx, email string) (*entities.User, error)
-	GenerateTokenUser(ctx *fiber.Ctx, user *entities.User) (*entities.OAuthToken, error)
+	RegisterByPass(ctx context.Context, user *entities.User) error
+	FindUserByOAuthTokenId(ctx context.Context, tokenId string) (*entities.User, error)
+	FindByEmail(ctx context.Context, email string) (*entities.User, error)
+	GenerateTokenUser(ctx context.Context, user *entities.User) (*entities.OAuthToken, error)
 }
