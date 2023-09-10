@@ -2,7 +2,7 @@ package http
 
 import (
 	"go-clean/src/app/infrastructures"
-	"go-clean/src/domains/auth"
+	"go-clean/src/domains/auth/interfaces"
 	authRepository "go-clean/src/domains/auth/repositories"
 	authUseCase "go-clean/src/domains/auth/usecases"
 	"go-clean/src/models/messages"
@@ -16,7 +16,7 @@ import (
 )
 
 type AuthHttp struct {
-	authUc auth.AuthUseCase
+	authUc interfaces.AuthUseCase
 }
 
 func NewAuthHttp(route *fiber.App) *AuthHttp {

@@ -3,7 +3,7 @@ package usecases
 import (
 	"context"
 	"errors"
-	"go-clean/src/domains/auth"
+	"go-clean/src/domains/auth/interfaces"
 	"go-clean/src/domains/users/entities"
 	"go-clean/src/models/messages"
 	"go-clean/src/models/requests"
@@ -16,10 +16,10 @@ import (
 )
 
 type AuthUseCase struct {
-	authRepo auth.AuthRepository
+	authRepo interfaces.AuthRepository
 }
 
-func NewAuthUseCase(authRepo auth.AuthRepository) *AuthUseCase {
+func NewAuthUseCase(authRepo interfaces.AuthRepository) *AuthUseCase {
 	return &AuthUseCase{
 		authRepo: authRepo,
 	}

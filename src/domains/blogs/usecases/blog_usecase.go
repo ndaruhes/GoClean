@@ -2,9 +2,9 @@ package usecases
 
 import (
 	"context"
-	"go-clean/src/domains/blogs"
 	"go-clean/src/domains/blogs/constants"
 	"go-clean/src/domains/blogs/entities"
+	"go-clean/src/domains/blogs/interfaces"
 	"go-clean/src/models/messages"
 	"go-clean/src/models/requests"
 	"go-clean/src/models/responses"
@@ -17,11 +17,11 @@ import (
 )
 
 type BlogUseCase struct {
-	blogRepo blogs.BlogRepository
+	blogRepo interfaces.BlogRepository
 	db       *gorm.DB
 }
 
-func NewBlogUseCase(blogRepo blogs.BlogRepository, db *gorm.DB) *BlogUseCase {
+func NewBlogUseCase(blogRepo interfaces.BlogRepository, db *gorm.DB) *BlogUseCase {
 	return &BlogUseCase{
 		blogRepo: blogRepo,
 		db:       db,

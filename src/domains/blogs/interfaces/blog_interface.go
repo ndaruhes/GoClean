@@ -1,4 +1,4 @@
-package blogs
+package interfaces
 
 import (
 	"context"

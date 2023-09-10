@@ -2,7 +2,7 @@ package http
 
 import (
 	"go-clean/src/app/infrastructures"
-	"go-clean/src/domains/blogs"
+	"go-clean/src/domains/blogs/interfaces"
 	blogRepository "go-clean/src/domains/blogs/repositories"
 	blogUseCase "go-clean/src/domains/blogs/usecases"
 	"go-clean/src/middlewares"
@@ -19,7 +19,7 @@ import (
 )
 
 type BlogHttp struct {
-	blogUc blogs.BlogUseCase
+	blogUc interfaces.BlogUseCase
 }
 
 func NewBlogHttp(route *fiber.App) *BlogHttp {
