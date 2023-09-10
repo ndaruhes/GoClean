@@ -119,7 +119,7 @@ func registerTranslation(validate *validator.Validate, rules map[string]string, 
 	}
 }
 
-func exists(ctx *fiber.Ctx, db *gorm.DB, slices []string, value any) bool {
+func exists(fiberCtx *fiber.Ctx, db *gorm.DB, slices []string, value any) bool {
 	var count int64
 
 	query := db.Table(slices[0]).Where(fmt.Sprintf("%s = ?", slices[1]), value)

@@ -20,8 +20,8 @@ var ErrorCodes = map[string]map[string]string{
 	"id": locales.ErrorID,
 }
 
-func SendSuccessResponse(ctx *fiber.Ctx, successResponse responses.SuccessResponse) {
-	lang := ctx.Locals("lang").(string)
+func SendSuccessResponse(fiberCtx *fiber.Ctx, successResponse responses.SuccessResponse) {
+	lang := fiberCtx.Locals("lang").(string)
 	var message string
 
 	if successResponse.StatusCode == 0 {
@@ -29,7 +29,7 @@ func SendSuccessResponse(ctx *fiber.Ctx, successResponse responses.SuccessRespon
 	}
 
 	if (successResponse.SuccessCode != "") && (SuccessCodes[lang] == nil || SuccessCodes[lang][successResponse.SuccessCode] == "") {
-		ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
+		fiberCtx.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"error":   "Success code is not defined",
 			"status":  http.StatusText(http.StatusInternalServerError),
@@ -48,10 +48,10 @@ func SendSuccessResponse(ctx *fiber.Ctx, successResponse responses.SuccessRespon
 	if successResponse.Data != nil {
 		body["data"] = successResponse.Data
 	}
-	ctx.Status(successResponse.StatusCode).JSON(body)
+	fiberCtx.Status(successResponse.StatusCode).JSON(body)
 }
 
-func SendErrorResponse(ctx *fiber.Ctx, errorResponse responses.ErrorResponse) {
+func SendErrorResponse(fiberCtx *fiber.Ctx, errorResponse responses.ErrorResponse) {
 	if HasError(errorResponse.Error) {
 		var errorWrapper *ErrorWrapper
 		switch {
@@ -59,7 +59,7 @@ func SendErrorResponse(ctx *fiber.Ctx, errorResponse responses.ErrorResponse) {
 			var err *ErrorWrapper
 			errors.As(errorResponse.Error, &err)
 			if err != nil {
-				lang := ctx.Locals("lang").(string)
+				lang := fiberCtx.Locals("lang").(string)
 				var message string
 
 				if errorResponse.StatusCode == 0 {
@@ -71,7 +71,7 @@ func SendErrorResponse(ctx *fiber.Ctx, errorResponse responses.ErrorResponse) {
 				}
 
 				if (err.ErrorCode != "") && (ErrorCodes[lang] == nil || ErrorCodes[lang][err.ErrorCode] == "") {
-					ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
+					fiberCtx.Status(http.StatusInternalServerError).JSON(fiber.Map{
 						"success": false,
 						"error":   "Error code is not defined",
 						"status":  http.StatusText(http.StatusInternalServerError),
@@ -95,7 +95,7 @@ func SendErrorResponse(ctx *fiber.Ctx, errorResponse responses.ErrorResponse) {
 					body["formErrors"] = errorResponse.FormErrors
 				}
 
-				ctx.Status(err.StatusCode).JSON(body)
+				fiberCtx.Status(err.StatusCode).JSON(body)
 			}
 		default:
 			statusCode := 500
@@ -112,7 +112,7 @@ func SendErrorResponse(ctx *fiber.Ctx, errorResponse responses.ErrorResponse) {
 				"error":   errorResponse.Error.Error(),
 				"status":  http.StatusText(statusCode),
 			}
-			ctx.Status(statusCode).JSON(body)
+			fiberCtx.Status(statusCode).JSON(body)
 		}
 	}
 }

@@ -57,7 +57,7 @@ func (uc *BlogUseCase) CreateBlog(ctx context.Context, request *requests.UpsertB
 		}
 	}
 
-	tx := utils.BeginTransaction(ctx, uc.db)
+	tx, ctx := utils.BeginTransaction(ctx, uc.db)
 	newBlog, err := uc.blogRepo.CreateBlog(ctx, blogPayload)
 	if err != nil {
 		tx.Rollback()
@@ -133,7 +133,7 @@ func (uc *BlogUseCase) AdjustBlog(ctx context.Context, blogID string, request *r
 		return err
 	}
 
-	tx := utils.BeginTransaction(ctx, uc.db)
+	tx, ctx := utils.BeginTransaction(ctx, uc.db)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.DRAFT, payload); err != nil {
 		tx.Rollback()
@@ -187,7 +187,7 @@ func (uc *BlogUseCase) PublishBlog(ctx context.Context, blogID string, request *
 		return err
 	}
 
-	tx := utils.BeginTransaction(ctx, uc.db)
+	tx, ctx := utils.BeginTransaction(ctx, uc.db)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.DRAFT, payload); err != nil {
 		tx.Rollback()
@@ -231,7 +231,7 @@ func (uc *BlogUseCase) UpdateBlog(ctx context.Context, blogID string, request *r
 		return err
 	}
 
-	tx := utils.BeginTransaction(ctx, uc.db)
+	tx, ctx := utils.BeginTransaction(ctx, uc.db)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.PUBLISHED, payload); err != nil {
 		tx.Rollback()

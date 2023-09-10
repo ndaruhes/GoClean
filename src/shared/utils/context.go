@@ -5,7 +5,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func OverrideFiberRequest(ctx *fiber.Ctx, key string, value interface{}) {
-	c := context.WithValue(ctx.Context(), key, value)
-	ctx.Locals(c)
+func GetContext(fiberCtx *fiber.Ctx) context.Context {
+	originalContext := fiberCtx.Context()
+	fiberCtxValues := originalContext.Value("fiberCtx")
+	ctx := context.WithValue(originalContext, "fiberCtx", fiberCtxValues)
+
+	return ctx
 }

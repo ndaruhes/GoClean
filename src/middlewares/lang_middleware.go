@@ -3,16 +3,15 @@ package middlewares
 import (
 	"github.com/gofiber/fiber/v2"
 	"go-clean/src/app/config"
-	"go-clean/src/shared/utils"
 )
 
 func LangMiddleware() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		if ctx.Get("lang") == "" {
-			lang := ctx.Get("lang", config.GetConfig().App.Locale)
-			ctx.Locals("lang", lang)
-			utils.OverrideFiberRequest(ctx, "lang", lang)
+	return func(fiberCtx *fiber.Ctx) error {
+		lang := fiberCtx.Get("lang", config.GetConfig().App.Locale)
+		if fiberCtx.Get("lang") == "" {
+			fiberCtx.Request().Header.Add("lang", lang)
+			fiberCtx.Locals("lang", lang)
 		}
-		return ctx.Next()
+		return fiberCtx.Next()
 	}
 }

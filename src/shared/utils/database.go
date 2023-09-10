@@ -13,10 +13,10 @@ func GetDb(ctx context.Context, db *gorm.DB) *gorm.DB {
 	return db
 }
 
-func BeginTransaction(ctx context.Context, db *gorm.DB) *gorm.DB {
+func BeginTransaction(ctx context.Context, db *gorm.DB) (*gorm.DB, context.Context) {
 	tx := db.Begin()
-	context.WithValue(ctx, "tx", tx)
-	return tx
+	ctx = context.WithValue(ctx, "tx", tx)
+	return tx, ctx
 }
 
 func Commit(ctx context.Context) {

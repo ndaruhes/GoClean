@@ -24,8 +24,8 @@ func NewStorageService() *StorageService {
 	return &StorageService{}
 }
 
-func (service *StorageService) UploadFromBytes(ctx *fiber.Ctx, b []byte, config GoogleStorageConfig) error {
-	parentCtx := ctx.Context() // Extract the underlying context
+func (service *StorageService) UploadFromBytes(fiberCtx *fiber.Ctx, b []byte, config GoogleStorageConfig) error {
+	parentCtx := fiberCtx.Context() // Extract the underlying context
 
 	timeout := time.Now().Add(time.Second * 50)
 	ctxWithTimeout, cancel := context.WithDeadline(parentCtx, timeout)

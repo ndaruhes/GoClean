@@ -10,10 +10,10 @@ import (
 )
 
 func Authenticated() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		user, err := helpers.VerifyToken(ctx)
+	return func(fiberCtx *fiber.Ctx) error {
+		user, err := helpers.VerifyToken(fiberCtx)
 		if err != nil {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 				Error:      err,
 				StatusCode: http.StatusUnauthorized,
 			})
@@ -21,11 +21,11 @@ func Authenticated() fiber.Handler {
 		}
 
 		if user.Role == "Member" {
-			ctx.Locals("member", user)
+			fiberCtx.Locals("member", user)
 		} else {
-			ctx.Locals("admin", user)
+			fiberCtx.Locals("admin", user)
 		}
 
-		return ctx.Next()
+		return fiberCtx.Next()
 	}
 }

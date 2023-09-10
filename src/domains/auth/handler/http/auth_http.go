@@ -1,7 +1,6 @@
 package http
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"go-clean/src/app/infrastructures"
 	"go-clean/src/domains/auth"
 	authRepository "go-clean/src/domains/auth/repositories"
@@ -9,8 +8,11 @@ import (
 	"go-clean/src/models/messages"
 	"go-clean/src/models/requests"
 	"go-clean/src/models/responses"
+	"go-clean/src/shared/utils"
 	"go-clean/src/shared/validators"
 	"net/http"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type AuthHttp struct {
@@ -36,10 +38,11 @@ func setRoutes(route *fiber.App, handler *AuthHttp) {
 	}
 }
 
-func (handler *AuthHttp) RegisterWithEmailPassword(ctx *fiber.Ctx) error {
+func (handler *AuthHttp) RegisterWithEmailPassword(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
 	request := &requests.RegisterWithEmailPasswordRequest{}
-	if err := ctx.BodyParser(&request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+	if err := fiberCtx.BodyParser(&request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
 		})
@@ -47,7 +50,7 @@ func (handler *AuthHttp) RegisterWithEmailPassword(ctx *fiber.Ctx) error {
 	}
 
 	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
@@ -57,11 +60,11 @@ func (handler *AuthHttp) RegisterWithEmailPassword(ctx *fiber.Ctx) error {
 
 	err := handler.authUc.RegisterByPass(ctx, request)
 	if err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 	} else {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-AUTH-0001",
 		})
 	}
@@ -69,10 +72,11 @@ func (handler *AuthHttp) RegisterWithEmailPassword(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func (handler *AuthHttp) LoginByPass(ctx *fiber.Ctx) error {
+func (handler *AuthHttp) LoginByPass(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
 	request := &requests.LoginRequest{}
-	if err := ctx.BodyParser(&request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+	if err := fiberCtx.BodyParser(&request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
 		})
@@ -80,7 +84,7 @@ func (handler *AuthHttp) LoginByPass(ctx *fiber.Ctx) error {
 	}
 
 	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
@@ -90,11 +94,11 @@ func (handler *AuthHttp) LoginByPass(ctx *fiber.Ctx) error {
 
 	data, err := handler.authUc.LoginByPass(ctx, request)
 	if err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 	} else {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-AUTH-0002",
 			Data:        data,
 		})

@@ -20,8 +20,8 @@ func RegisterMiddlewares(router *fiber.App) {
 }
 
 func RegisterRoutes(router *fiber.App) {
-	router.Get("/", func(ctx *fiber.Ctx) error {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+	router.Get("/", func(fiberCtx *fiber.Ctx) error {
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BASIC-0001",
 			StatusCode:  http.StatusOK,
 		})
@@ -35,21 +35,21 @@ func RegisterRoutes(router *fiber.App) {
 	blogs.NewBlogHttp(router)
 }
 
-func migrate(ctx *fiber.Ctx) error {
-	if ctx.Query("key") == os.Getenv("MIGRATE_KEY") {
+func migrate(fiberCtx *fiber.Ctx) error {
+	if fiberCtx.Query("key") == os.Getenv("MIGRATE_KEY") {
 		err := migration.Migrate()
 		if err != nil {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 				Error:      err,
 				StatusCode: http.StatusInternalServerError,
 			})
 		} else {
-			messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+			messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 				SuccessCode: "SUCCESS-DB-0001",
 			})
 		}
 	} else {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      errors.New("key is invalid"),
 			StatusCode: http.StatusInternalServerError,
 		})
@@ -58,15 +58,15 @@ func migrate(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func seedData(ctx *fiber.Ctx) error {
+func seedData(fiberCtx *fiber.Ctx) error {
 	err := seeder.DBSeed()
 	if err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusInternalServerError,
 		})
 	} else {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-DB-0002",
 		})
 	}

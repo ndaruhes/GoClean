@@ -1,7 +1,6 @@
 package http
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"go-clean/src/app/infrastructures"
 	"go-clean/src/domains/blogs"
 	blogRepository "go-clean/src/domains/blogs/repositories"
@@ -15,6 +14,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type BlogHttp struct {
@@ -46,22 +47,23 @@ func setRoutes(route *fiber.App, handler *BlogHttp) {
 	}
 }
 
-func (handler *BlogHttp) CreateBlog(ctx *fiber.Ctx) error {
+func (handler *BlogHttp) CreateBlog(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
 	request := &requests.UpsertBlogRequest{
-		Title:   ctx.FormValue("title"),
-		Content: ctx.FormValue("content"),
+		Title:   fiberCtx.FormValue("title"),
+		Content: fiberCtx.FormValue("content"),
 	}
 
-	blogCategoryIds := handleBlogCategories(ctx)
+	blogCategoryIds := handleBlogCategories(fiberCtx)
 	request.BlogCategoryIds = blogCategoryIds
 
-	file, fileName := handleSingleFile(ctx)
+	file, fileName := handleSingleFile(fiberCtx)
 	if err := handler.blogUc.CreateBlog(ctx, request, file, fileName); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 	} else {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0001",
 		})
 	}
@@ -69,22 +71,23 @@ func (handler *BlogHttp) CreateBlog(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func (handler *BlogHttp) AdjustBlog(ctx *fiber.Ctx) error {
+func (handler *BlogHttp) AdjustBlog(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
 	request := &requests.UpsertBlogRequest{
-		Title:   ctx.FormValue("title"),
-		Content: ctx.FormValue("content"),
+		Title:   fiberCtx.FormValue("title"),
+		Content: fiberCtx.FormValue("content"),
 	}
 
-	blogCategoryIds := handleBlogCategories(ctx)
+	blogCategoryIds := handleBlogCategories(fiberCtx)
 	request.BlogCategoryIds = blogCategoryIds
 
-	file, fileName := handleSingleFile(ctx)
-	if err := handler.blogUc.AdjustBlog(ctx, ctx.Params("id"), request, file, fileName); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+	file, fileName := handleSingleFile(fiberCtx)
+	if err := handler.blogUc.AdjustBlog(ctx, fiberCtx.Params("id"), request, file, fileName); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 	} else {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0002",
 		})
 	}
@@ -92,17 +95,18 @@ func (handler *BlogHttp) AdjustBlog(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func (handler *BlogHttp) PublishBlog(ctx *fiber.Ctx) error {
+func (handler *BlogHttp) PublishBlog(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
 	request := &requests.UpsertBlogRequest{
-		Title:   ctx.FormValue("title"),
-		Content: ctx.FormValue("content"),
+		Title:   fiberCtx.FormValue("title"),
+		Content: fiberCtx.FormValue("content"),
 	}
 
-	blogCategoryIds := handleBlogCategories(ctx)
+	blogCategoryIds := handleBlogCategories(fiberCtx)
 	request.BlogCategoryIds = blogCategoryIds
 
-	if err := ctx.BodyParser(&request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+	if err := fiberCtx.BodyParser(&request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
 		})
@@ -110,7 +114,7 @@ func (handler *BlogHttp) PublishBlog(ctx *fiber.Ctx) error {
 	}
 
 	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
@@ -118,13 +122,13 @@ func (handler *BlogHttp) PublishBlog(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	file, fileName := handleSingleFile(ctx)
-	if err := handler.blogUc.PublishBlog(ctx, ctx.Params("id"), request, file, fileName); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+	file, fileName := handleSingleFile(fiberCtx)
+	if err := handler.blogUc.PublishBlog(ctx, fiberCtx.Params("id"), request, file, fileName); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 	} else {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0004",
 		})
 	}
@@ -132,17 +136,18 @@ func (handler *BlogHttp) PublishBlog(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func (handler *BlogHttp) UpdateBlog(ctx *fiber.Ctx) error {
+func (handler *BlogHttp) UpdateBlog(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
 	request := &requests.UpsertBlogRequest{
-		Title:   ctx.FormValue("title"),
-		Content: ctx.FormValue("content"),
+		Title:   fiberCtx.FormValue("title"),
+		Content: fiberCtx.FormValue("content"),
 	}
 
-	blogCategoryIds := handleBlogCategories(ctx)
+	blogCategoryIds := handleBlogCategories(fiberCtx)
 	request.BlogCategoryIds = blogCategoryIds
 
-	if err := ctx.BodyParser(&request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+	if err := fiberCtx.BodyParser(&request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
 		})
@@ -150,7 +155,7 @@ func (handler *BlogHttp) UpdateBlog(ctx *fiber.Ctx) error {
 	}
 
 	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
@@ -158,13 +163,13 @@ func (handler *BlogHttp) UpdateBlog(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	file, fileName := handleSingleFile(ctx)
-	if err := handler.blogUc.UpdateBlog(ctx, ctx.Params("id"), request, file, fileName); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+	file, fileName := handleSingleFile(fiberCtx)
+	if err := handler.blogUc.UpdateBlog(ctx, fiberCtx.Params("id"), request, file, fileName); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 	} else {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0002",
 		})
 	}
@@ -172,13 +177,14 @@ func (handler *BlogHttp) UpdateBlog(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func (handler *BlogHttp) DeleteBlog(ctx *fiber.Ctx) error {
-	if err := handler.blogUc.DeleteBlog(ctx, ctx.Params("id")); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+func (handler *BlogHttp) DeleteBlog(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
+	if err := handler.blogUc.DeleteBlog(ctx, fiberCtx.Params("id")); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 	} else {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0003",
 		})
 	}
@@ -186,17 +192,18 @@ func (handler *BlogHttp) DeleteBlog(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func (handler *BlogHttp) UpdateSlug(ctx *fiber.Ctx) error {
+func (handler *BlogHttp) UpdateSlug(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
 	request := &requests.UpdateSlugRequest{}
-	if err := ctx.BodyParser(request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+	if err := fiberCtx.BodyParser(request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 		return nil
 	}
 
 	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
@@ -204,12 +211,12 @@ func (handler *BlogHttp) UpdateSlug(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	if err := handler.blogUc.UpdateSlug(ctx, ctx.Params("id"), request); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+	if err := handler.blogUc.UpdateSlug(ctx, fiberCtx.Params("id"), request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 	} else {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0005",
 		})
 	}
@@ -217,13 +224,14 @@ func (handler *BlogHttp) UpdateSlug(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func (handler *BlogHttp) UpdateToDraft(ctx *fiber.Ctx) error {
-	if err := handler.blogUc.UpdateBlogToDraft(ctx, ctx.Params("id")); err != nil {
-		messages.SendErrorResponse(ctx, responses.ErrorResponse{
+func (handler *BlogHttp) UpdateToDraft(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
+	if err := handler.blogUc.UpdateBlogToDraft(ctx, fiberCtx.Params("id")); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 	} else {
-		messages.SendSuccessResponse(ctx, responses.SuccessResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0006",
 		})
 	}
@@ -231,14 +239,14 @@ func (handler *BlogHttp) UpdateToDraft(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func handleBlogCategories(ctx *fiber.Ctx) []int {
-	blogCategoryIds := ctx.FormValue("blogCategoryIds")
+func handleBlogCategories(fiberCtx *fiber.Ctx) []int {
+	blogCategoryIds := fiberCtx.FormValue("blogCategoryIds")
 	idStrings := strings.Split(blogCategoryIds, ",")
 	var convertedCategoryIds []int
 	for _, id := range idStrings {
 		convertedId, err := strconv.Atoi(id)
 		if err != nil {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 				StatusCode: http.StatusBadRequest,
 				Error:      err,
 			})
@@ -250,15 +258,15 @@ func handleBlogCategories(ctx *fiber.Ctx) []int {
 	return convertedCategoryIds
 }
 
-func handleSingleFile(ctx *fiber.Ctx) ([]byte, string) {
+func handleSingleFile(fiberCtx *fiber.Ctx) ([]byte, string) {
 	var (
 		file     []byte
 		fileName string
 	)
-	header, err := ctx.FormFile("cover")
+	header, err := fiberCtx.FormFile("cover")
 	if header != nil {
 		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 				StatusCode: http.StatusBadRequest,
 				Error:      err,
 			})
@@ -267,7 +275,7 @@ func handleSingleFile(ctx *fiber.Ctx) ([]byte, string) {
 
 		err = validators.ValidateImage(header)
 		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 				StatusCode: http.StatusBadRequest,
 				Error:      err,
 			})
@@ -276,7 +284,7 @@ func handleSingleFile(ctx *fiber.Ctx) ([]byte, string) {
 
 		file, err = utils.MultipartFileHeaderToByte(header)
 		if messages.HasError(err) {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 				StatusCode: http.StatusBadRequest,
 				Error:      err,
 			})

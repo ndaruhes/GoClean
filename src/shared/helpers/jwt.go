@@ -30,9 +30,9 @@ func GenerateToken(id string, email string, role string) (string, error) {
 	return signedToken, nil
 }
 
-func VerifyToken(ctx *fiber.Ctx) (*responses.TokenDecoded, error) {
+func VerifyToken(fiberCtx *fiber.Ctx) (*responses.TokenDecoded, error) {
 	errResponse := errors.New("sign in to proceed")
-	headerToken := ctx.Get("Authorization")
+	headerToken := fiberCtx.Get("Authorization")
 	bearer := strings.HasPrefix(headerToken, "Bearer")
 
 	if !bearer {
