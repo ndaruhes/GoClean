@@ -24,7 +24,7 @@ func ConnectDatabase() *gorm.DB {
 				DSN: dsn,
 			},
 		), &gorm.Config{
-			Logger:               logger.Default,
+			Logger:               logger.Default.LogMode(logger.Info),
 			FullSaveAssociations: true,
 		})
 		if err != nil {
