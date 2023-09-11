@@ -11,8 +11,7 @@ func main() {
 	app := fiber.New()
 	server.RegisterMiddlewares(app)
 	server.RegisterRoutes(app)
-	err := app.Listen(fmt.Sprintf(":%d", appConfig.GetConfig().App.Port))
-	if err != nil {
+	if err := app.Listen(fmt.Sprintf(":%d", appConfig.GetConfig().App.Port)); err != nil {
 		return
 	}
 }

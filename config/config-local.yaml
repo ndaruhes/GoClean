@@ -2,7 +2,6 @@ app:
   Port: 8100
   Name: go-clean
   Locale: en
-  #Prefix: JP
   Environment: local
   Key: asfsfdsf
   Debug: true

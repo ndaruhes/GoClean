@@ -3,10 +3,9 @@ package config
 import (
 	"errors"
 	"fmt"
+	"github.com/spf13/viper"
 	"log"
 	"os"
-
-	"github.com/spf13/viper"
 )
 
 var config *Config
@@ -42,25 +41,19 @@ type Google struct {
 	PublicStorageBucket  string
 }
 
-//func ParseConfig(v *viper.Viper) *Config {
-//	var c Config
-//
-//	err := v.Unmarshal(&c)
-//	if err != nil {
-//		log.Printf("unable to decode into struct, %v", err)
-//		panic(err)
-//	}
-//
-//	return &c
-//}
-
 func loadConfig(environment string) (*viper.Viper, error) {
 	v := viper.New()
-	v.SetConfigName(fmt.Sprintf("%s/config-%s", os.Getenv("CONFIG_PATH"), environment))
-	v.AddConfigPath(".")
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	v.SetConfigName(fmt.Sprintf("config/config-%s", environment))
+	v.AddConfigPath(currentDir)
 	v.AutomaticEnv()
 	if err := v.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundError) {
 			return nil, errors.New("config file not found")
 		}
 		return nil, err
@@ -71,7 +64,7 @@ func loadConfig(environment string) (*viper.Viper, error) {
 
 func GetConfig() *Config {
 	if config == nil {
-		v, err := loadConfig(os.Getenv("ENVIRONMENT"))
+		v, err := loadConfig("local")
 		if err != nil {
 			panic(err)
 		}
@@ -81,5 +74,6 @@ func GetConfig() *Config {
 			panic(err)
 		}
 	}
+
 	return config
 }
