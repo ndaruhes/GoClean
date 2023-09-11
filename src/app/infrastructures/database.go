@@ -3,7 +3,7 @@ package infrastructures
 import (
 	"fmt"
 	"go-clean/src/app/config"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -15,12 +15,12 @@ func ConnectDatabase() *gorm.DB {
 	if db == nil {
 		conf := config.GetConfig().Database
 		if conf.Password == "" {
-			dsn = fmt.Sprintf("%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", conf.Username, conf.Host, conf.Port, conf.Name)
+			dsn = fmt.Sprintf("host=%s user=%s dbname=%s port=%d sslmode=disable", conf.Host, conf.Username, conf.Name, conf.Port)
 		} else {
-			dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", conf.Username, conf.Password, conf.Host, conf.Port, conf.Name)
+			dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", conf.Host, conf.Username, conf.Password, conf.Name, conf.Port)
 		}
-		database, err := gorm.Open(mysql.New(
-			mysql.Config{
+		database, err := gorm.Open(postgres.New(
+			postgres.Config{
 				DSN: dsn,
 			},
 		), &gorm.Config{

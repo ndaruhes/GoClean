@@ -7,9 +7,16 @@ app:
   Debug: true
   MigrateKey:
 
+#database:
+#  host: localhost
+#  port: 3306
+#  name: ndaruhes_fresh
+#  username: root
+#  password:
+
 database:
   host: localhost
-  port: 3306
+  port: 5432
   name: ndaruhes_fresh
-  username: root
-  password:
+  username: postgres
+  password: root

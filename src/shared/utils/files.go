@@ -21,14 +21,14 @@ func MakeDirectory(source string) error {
 	return nil
 }
 
-func FileExists(targetDir string, fileName string) error {
+func FileExists(targetDir string, fileName string) (error, bool) {
 	destDir := filepath.Join(targetDir, fileName)
 	_, err := os.Stat(destDir)
 	if err != nil {
-		return err
+		return err, false
 	}
 
-	return nil
+	return nil, true
 }
 
 func UploadSingleFile(file []byte, targetDir string, fileName string) error {
@@ -61,13 +61,11 @@ func MoveSingleFile(sourceDir string, targetDir string, fileName string) error {
 }
 
 func DeleteSingleFile(targetDir string, fileName string) error {
-	if err := FileExists(targetDir, fileName); err != nil {
-		return err
-	}
-
-	destDir := filepath.Join(targetDir, fileName)
-	if err := os.Remove(destDir); err != nil {
-		return err
+	if _, exists := FileExists(targetDir, fileName); exists {
+		destDir := filepath.Join(targetDir, fileName)
+		if err := os.Remove(destDir); err != nil {
+			return err
+		}
 	}
 
 	return nil

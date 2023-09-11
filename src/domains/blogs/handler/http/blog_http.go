@@ -105,7 +105,7 @@ func (handler *BlogHttp) PublishBlog(fiberCtx *fiber.Ctx) error {
 	blogCategoryIds := handleBlogCategories(fiberCtx)
 	request.BlogCategoryIds = blogCategoryIds
 
-	if err := fiberCtx.BodyParser(&request); err != nil {
+	if err := fiberCtx.BodyParser(request); err != nil {
 		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
@@ -146,7 +146,7 @@ func (handler *BlogHttp) UpdateBlog(fiberCtx *fiber.Ctx) error {
 	blogCategoryIds := handleBlogCategories(fiberCtx)
 	request.BlogCategoryIds = blogCategoryIds
 
-	if err := fiberCtx.BodyParser(&request); err != nil {
+	if err := fiberCtx.BodyParser(request); err != nil {
 		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
 			StatusCode: http.StatusBadRequest,
