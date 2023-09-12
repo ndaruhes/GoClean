@@ -7,17 +7,15 @@ WORKDIR /app
 
 COPY . /app
 
-WORKDIR ./app
+WORKDIR /app/src
 RUN go mod download
-CMD cd src && go build -o go-clean
+RUN go build -o /app/bin/go-clean
 
 # STAGE 2
 FROM alpine:latest
 RUN apk add --no-cache gcc musl-dev
 RUN apk add --no-cache vips-dev
 WORKDIR /root/
-COPY --from=go-clean-builder /app .
-ENV ENVIRONMENT=local
-ENV CONFIG_PATH=/config
+COPY --from=go-clean-builder /app/bin/go-clean ./
 EXPOSE 8000
-CMD cd src && ./go-clean-builder
+CMD ./go-clean
