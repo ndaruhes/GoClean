@@ -17,6 +17,6 @@ app:
 database:
   host: localhost
   port: 5432
-  name: ndaruhes_fresh
+  name: ndaruhes_fresh_exercise
   username: postgres
   password: root

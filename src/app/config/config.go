@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 var config *Config
@@ -48,6 +50,26 @@ func loadConfig(environment string) (*viper.Viper, error) {
 		return nil, err
 	}
 
+	fmt.Println("ANZAYYY", currentDir)
+
+	err = filepath.Walk(currentDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Println("Error:", err)
+			return err
+		}
+		if info.IsDir() {
+			fmt.Println("Folder:", path)
+		} else {
+			fmt.Println("File:", path)
+		}
+		return nil
+	})
+
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	currentDir = strings.TrimSuffix(currentDir, "src")
 	v.SetConfigName(fmt.Sprintf("config/config-%s", environment))
 	v.AddConfigPath(currentDir)
 	v.AutomaticEnv()
