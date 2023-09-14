@@ -1,5 +1,5 @@
 # STAGE 1
-FROM golang:1.19.9-alpine as go-clean-builder
+FROM golang:1.19.9-alpine as GoCleanBuilder
 
 # Instalasi dependensi yang diperlukan
 RUN apk add --no-cache pkgconfig
@@ -20,8 +20,8 @@ COPY go.work .
 # Mengunduh dependensi Go
 RUN go mod download
 
-# Kompilasi aplikasi Go dan simpan dalam /app/bin/go-clean
-RUN go build -o /app/bin/go-clean ./src
+# Kompilasi aplikasi Go dan simpan dalam /app/bin/GoClean
+RUN go build -o /app/bin/GoClean ./src
 
 # STAGE 2
 FROM alpine:latest
@@ -31,11 +31,15 @@ RUN apk add --no-cache gcc musl-dev
 RUN apk --no-cache add tzdata
 RUN apk add --no-cache vips-dev
 
+# Set env
+ENV APP_ENVIRONMENT=develop
+ENV APP_ROOT_FOLDER=GoClean
+
 # Set direktori kerja di dalam kontainer
-WORKDIR /root/
+WORKDIR /GoClean/
 
 # Menyalin hasil kompilasi dari tahap pertama ke tahap kedua
-COPY --from=go-clean-builder /app/bin/go-clean ./bin/
+COPY --from=GoCleanBuilder /app/bin/GoClean ./bin/
 
 # Menyalin konfigurasi yang diperlukan
 COPY config ./config/
@@ -47,4 +51,4 @@ COPY google ./google/
 EXPOSE 8000
 
 # Perintah untuk menjalankan aplikasi Go
-CMD ./bin/go-clean
+CMD ./bin/GoClean

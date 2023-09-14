@@ -1,6 +1,6 @@
 app:
   Port: 8100
-  Name: go-clean
+  Name: GoClean
   Locale: en
   Environment: local
   Key: asfsfdsf

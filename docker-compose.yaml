@@ -3,7 +3,7 @@ version: '3.8'
 services:
   database:
     image: postgres:latest
-    container_name: postgres-db-driver
+    container_name: PostgresDB
 #    environment:
 #      POSTGRES_DB: ndaruhes_fresh
 #      POSTGRES_USER: postgres
@@ -12,7 +12,7 @@ services:
 #      - 5432:5432
 
   server:
-    container_name: go-clean-app
+    container_name: GoCleanApp
     build:
       dockerfile: Dockerfile
       context: ./
@@ -20,9 +20,5 @@ services:
       - 8001:8000
     depends_on:
       - database
-    env_file: .env.develop
 #    extra_hosts:
 #      - "localhost:172.17.0.1"
-    environment:
-      APP_ENVIRONMENT: ${APP_ENVIRONMENT}
-      APP_ROOT_FOLDER: ${APP_ROOT_FOLDER}

@@ -1,7 +1,7 @@
 .vscode
 .idea
 __debug_bin.exe
-#.env.local
+#.env
 #.env.local.*
 */config-local.yaml
 *.exe
