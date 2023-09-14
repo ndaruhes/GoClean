@@ -1,8 +1,8 @@
 .vscode
 .idea
 __debug_bin.exe
-.env
-.env.*
+.env.local
+#.env.local.*
 */config-local.yaml
 *.exe
 */vendor

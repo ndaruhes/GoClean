@@ -4,12 +4,12 @@ services:
   database:
     image: postgres:latest
     container_name: postgres-db-driver
-    environment:
-      POSTGRES_DB: ndaruhes_fresh
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
-    ports:
-      - 5432:5432
+#    environment:
+#      POSTGRES_DB: ndaruhes_fresh
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: root
+#    ports:
+#      - 5432:5432
 
   server:
     container_name: go-clean-app
@@ -20,5 +20,9 @@ services:
       - 8001:8000
     depends_on:
       - database
-    extra_hosts:
-      - "localhost:172.17.0.1"
+    env_file: .env.develop
+#    extra_hosts:
+#      - "localhost:172.17.0.1"
+    environment:
+      APP_ENVIRONMENT: ${APP_ENVIRONMENT}
+      APP_ROOT_FOLDER: ${APP_ROOT_FOLDER}

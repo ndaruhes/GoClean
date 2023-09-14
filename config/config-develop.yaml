@@ -8,7 +8,7 @@ app:
   MigrateKey:
 
 database:
-  host: localhost
+  host: localhost:172.17.0.1
   port: 5432
   name: ndaruhes_fresh
   username: postgres

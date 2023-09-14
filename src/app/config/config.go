@@ -52,12 +52,12 @@ func loadConfig(environment string) (*viper.Viper, error) {
 
 	printFolderStructure(currentDir)
 
-	rootFolderIndex := strings.LastIndex(currentDir, "GoClean")
+	rootFolderIndex := strings.LastIndex(currentDir, os.Getenv("APP_ROOT_FOLDER"))
 	if rootFolderIndex == -1 {
-		return nil, fmt.Errorf("root folder GoClean tidak ditemukan dalam path")
+		return nil, fmt.Errorf("root folder " + os.Getenv("APP_ROOT_FOLDER") + " tidak ditemukan dalam path")
 	}
 
-	configPath := filepath.Join(currentDir[:rootFolderIndex+len("GoClean")], "config")
+	configPath := filepath.Join(currentDir[:rootFolderIndex+len(os.Getenv("APP_ROOT_FOLDER"))], "config")
 	v.SetConfigName(fmt.Sprintf("config-%s", environment))
 	v.AddConfigPath(configPath)
 	v.AutomaticEnv()
@@ -74,7 +74,7 @@ func loadConfig(environment string) (*viper.Viper, error) {
 
 func GetConfig() *Config {
 	if config == nil {
-		v, err := loadConfig("local")
+		v, err := loadConfig(os.Getenv("APP_ENVIRONMENT"))
 		if err != nil {
 			panic(err)
 		}
