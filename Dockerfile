@@ -35,16 +35,16 @@ RUN apk add --no-cache vips-dev
 WORKDIR /root/
 
 # Menyalin hasil kompilasi dari tahap pertama ke tahap kedua
-COPY --from=go-clean-builder /app/bin/go-clean ./
+COPY --from=go-clean-builder /app/bin/go-clean ./bin/
 
 # Menyalin konfigurasi yang diperlukan
-COPY config/config-local.yaml ./config/
+COPY config ./config/
 
 # Menyalin file Google Config (jika diperlukan)
-COPY google/fresh-app.json ./google/
+COPY google ./google/
 
 # Port yang akan diexpose
 EXPOSE 8000
 
 # Perintah untuk menjalankan aplikasi Go
-CMD ./go-clean
+CMD ./bin/go-clean

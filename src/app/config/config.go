@@ -50,28 +50,16 @@ func loadConfig(environment string) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	fmt.Println("ANZAYYY", currentDir)
+	printFolderStructure(currentDir)
 
-	err = filepath.Walk(currentDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			fmt.Println("Error:", err)
-			return err
-		}
-		if info.IsDir() {
-			fmt.Println("Folder:", path)
-		} else {
-			fmt.Println("File:", path)
-		}
-		return nil
-	})
-
-	if err != nil {
-		fmt.Println("Error:", err)
+	rootFolderIndex := strings.LastIndex(currentDir, "GoClean")
+	if rootFolderIndex == -1 {
+		return nil, fmt.Errorf("root folder GoClean tidak ditemukan dalam path")
 	}
 
-	currentDir = strings.TrimSuffix(currentDir, "src")
-	v.SetConfigName(fmt.Sprintf("config/config-%s", environment))
-	v.AddConfigPath(currentDir)
+	configPath := filepath.Join(currentDir[:rootFolderIndex+len("GoClean")], "config")
+	v.SetConfigName(fmt.Sprintf("config-%s", environment))
+	v.AddConfigPath(configPath)
 	v.AutomaticEnv()
 	if err := v.ReadInConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
@@ -98,4 +86,49 @@ func GetConfig() *Config {
 	}
 
 	return config
+}
+
+func printFolderStructure(currentDir string) {
+	fmt.Println("")
+	fmt.Println("FOLDER STRUCTURE")
+	fmt.Println("------------------------------------------------------------------------")
+
+	// Daftar folder yang ingin dikecualikan
+	excludedFolders := map[string]bool{
+		".idea":   true,
+		".git":    true,
+		".vscode": true,
+		"tmp":     true,
+	} // Ganti dengan nama folder yang ingin Anda kecualikan
+
+	err := filepath.Walk(currentDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Println("Error:", err)
+			return err
+		}
+
+		// Periksa apakah folder ada dalam daftar yang ingin dikecualikan
+		if _, ok := excludedFolders[info.Name()]; ok && info.IsDir() {
+			return filepath.SkipDir // Lewati folder ini dan isinya
+		}
+
+		// Hitung berapa banyak karakter indent yang diperlukan
+		relativePath, _ := filepath.Rel(currentDir, path)
+		depth := strings.Count(relativePath, string(filepath.Separator))
+		indent := strings.Repeat("  ", depth)
+
+		// Cetak folder atau file dengan indent
+		if info.IsDir() {
+			fmt.Printf("%sFolder: %s\n", indent, path)
+		} else {
+			fmt.Printf("%sFile: %s\n", indent, path)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	fmt.Println("------------------------------------------------------------------------")
 }
