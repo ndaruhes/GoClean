@@ -3,11 +3,12 @@ package config
 import (
 	"errors"
 	"fmt"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 var config *Config
@@ -50,6 +51,7 @@ func loadConfig(environment string) (*viper.Viper, error) {
 		return nil, err
 	}
 
+	fmt.Println("ENVIRONMENT = ", os.Getenv("APP_ENVIRONMENT"))
 	printFolderStructure(currentDir)
 
 	rootFolderIndex := strings.LastIndex(currentDir, os.Getenv("APP_ROOT_FOLDER"))
