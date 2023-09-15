@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"path/filepath"
@@ -44,29 +45,29 @@ type Google struct {
 	PublicStorageBucket  string
 }
 
-func loadConfig(environment string) (*viper.Viper, error) {
+func loadConfig(appEnvironment string, appRootFolder string) (*viper.Viper, error) {
 	v := viper.New()
 	currentDir, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("ENVIRONMENT = ", os.Getenv("APP_ENVIRONMENT"))
 	printFolderStructure(currentDir)
+	fmt.Println("ENVIRONMENT = ", appEnvironment)
+	fmt.Println("APP ROOT FOLDER = ", appRootFolder)
 
-	rootFolderIndex := strings.LastIndex(currentDir, os.Getenv("APP_ROOT_FOLDER"))
+	rootFolderIndex := strings.LastIndex(currentDir, appRootFolder)
 	if rootFolderIndex == -1 {
-		return nil, fmt.Errorf("root folder " + os.Getenv("APP_ROOT_FOLDER") + " tidak ditemukan dalam path")
+		return nil, fmt.Errorf("root folder " + appRootFolder + "tidak ditemukan dalam path")
 	}
 
-	configPath := filepath.Join(currentDir[:rootFolderIndex+len(os.Getenv("APP_ROOT_FOLDER"))], "config")
-	v.SetConfigName(fmt.Sprintf("config-%s", environment))
+	configPath := filepath.Join(currentDir[:rootFolderIndex+len(appRootFolder)], "config")
+	v.SetConfigName(fmt.Sprintf("config-%s", appEnvironment))
 	v.AddConfigPath(configPath)
-	v.AutomaticEnv()
 	if err := v.ReadInConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
 		if errors.As(err, &configFileNotFoundError) {
-			return nil, errors.New("config file not found")
+			return nil, errors.New(fmt.Sprintf("config-%s file not found", appEnvironment))
 		}
 		return nil, err
 	}
@@ -75,8 +76,12 @@ func loadConfig(environment string) (*viper.Viper, error) {
 }
 
 func GetConfig() *Config {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
 	if config == nil {
-		v, err := loadConfig(os.Getenv("APP_ENVIRONMENT"))
+		v, err := loadConfig(os.Getenv("APP_ENVIRONMENT"), os.Getenv("APP_ROOT_FOLDER"))
 		if err != nil {
 			panic(err)
 		}

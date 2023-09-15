@@ -14,6 +14,7 @@ COPY src ./src
 COPY google ./google
 COPY config ./config
 COPY .air.toml .
+COPY .env .
 COPY go.mod .
 COPY go.work .
 
@@ -32,8 +33,8 @@ RUN apk --no-cache add tzdata
 RUN apk add --no-cache vips-dev
 
 # Set env
-ENV APP_ENVIRONMENT=develop
-ENV APP_ROOT_FOLDER=GoClean
+#ENV APP_ENVIRONMENT=develop
+#ENV APP_ROOT_FOLDER=GoClean
 
 # Set direktori kerja di dalam kontainer
 WORKDIR /GoClean/
@@ -43,9 +44,8 @@ COPY --from=GoCleanBuilder /app/bin/GoClean ./bin/
 
 # Menyalin konfigurasi yang diperlukan
 COPY config ./config/
-
-# Menyalin file Google Config (jika diperlukan)
 COPY google ./google/
+COPY .env .
 
 # Port yang akan diexpose
 EXPOSE 8000
