@@ -48,7 +48,7 @@ COPY google ./google/
 COPY .env .
 
 # Port yang akan diexpose
-EXPOSE 8000
+EXPOSE 8100
 
 # Perintah untuk menjalankan aplikasi Go
 CMD ./bin/GoClean
