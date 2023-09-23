@@ -9,7 +9,7 @@ import (
 
 type BlogUseCase interface {
 	// BLOG USECASE
-	GetPublicBlogList(ctx context.Context) (*responses.PublicBlogListsResponse, error)
+	GetPublicBlogList(ctx context.Context) ([]responses.PublicBlogListsResponse, error)
 	CreateBlog(ctx context.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error
 	AdjustBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
 	PublishBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
@@ -23,7 +23,7 @@ type BlogRepository interface {
 	// BLOG REPOSITORY
 	FindBlogById(ctx context.Context, id string) (*entities.Blog, error)
 	FindBlogBySlug(ctx context.Context, slug string) (*entities.Blog, error)
-	GetPublicBlogList(ctx context.Context) (*responses.PublicBlogListsResponse, error)
+	GetPublicBlogList(ctx context.Context) ([]entities.Blog, error)
 	CreateBlog(ctx context.Context, blog *entities.Blog) (*entities.Blog, error)
 	UpdateBlog(ctx context.Context, blogID string, blogStatusCheck string, blog *entities.Blog) error
 	DeleteBlog(ctx context.Context, blogID string) error

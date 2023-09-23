@@ -28,9 +28,26 @@ func NewBlogUseCase(blogRepo interfaces.BlogRepository, db *gorm.DB) *BlogUseCas
 	}
 }
 
-func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context) (*responses.PublicBlogListsResponse, error) {
-	//TODO implement me
-	panic("implement me")
+func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context) ([]responses.PublicBlogListsResponse, error) {
+	data, err := uc.blogRepo.GetPublicBlogList(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var blogs []responses.PublicBlogListsResponse
+
+	for _, blog := range data {
+		blogResponses := responses.PublicBlogListsResponse{
+			Title:       utils.GetStringPointerValue(blog.Title),
+			Cover:       utils.GetStringPointerValue(blog.Cover),
+			Content:     utils.GetStringPointerValue(blog.Content),
+			Author:      blog.User.Name,
+			PublishedAt: utils.GetTimePointerValue(blog.PublishedAt),
+		}
+
+		blogs = append(blogs, blogResponses)
+	}
+
+	return blogs, nil
 }
 
 // BLOG USECASE

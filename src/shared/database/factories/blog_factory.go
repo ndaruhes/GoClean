@@ -10,6 +10,7 @@ import (
 	"go-clean/src/shared/utils"
 	"math/rand"
 	"strings"
+	"time"
 )
 
 func BlogFactory() []entities.Blog {
@@ -23,7 +24,7 @@ func BlogFactory() []entities.Blog {
 		randomUserIdx := rand.Intn(len(users))
 		randomUser := users[randomUserIdx]
 
-		blogs = append(blogs, entities.Blog{
+		blog := entities.Blog{
 			ID:      strings.ToUpper(xid.New().String()),
 			Title:   &sentence,
 			Slug:    utils.GenerateSlug(sentence),
@@ -31,7 +32,13 @@ func BlogFactory() []entities.Blog {
 			Content: &content,
 			Status:  utils.GetRandomString([]string{"Draft", "Published"}),
 			UserID:  randomUser.ID,
-		})
+		}
+
+		now := time.Now().UTC()
+		if blog.Status == "Published" {
+			blog.PublishedAt = &now
+		}
+		blogs = append(blogs, blog)
 	}
 
 	return blogs

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"go-clean/src/domains/blogs/entities"
 	"go-clean/src/models/messages"
-	"go-clean/src/models/responses"
 	"go-clean/src/shared/utils"
 	"net/http"
 
@@ -55,9 +54,16 @@ func (repo *BlogRepository) FindBlogBySlug(ctx context.Context, slug string) (*e
 	return blog, nil
 }
 
-func (repo *BlogRepository) GetPublicBlogList(ctx context.Context) (*responses.PublicBlogListsResponse, error) {
-	//TODO implement me
-	panic("implement me")
+func (repo *BlogRepository) GetPublicBlogList(ctx context.Context) ([]entities.Blog, error) {
+	var data []entities.Blog
+	err := utils.GetDb(ctx, repo.db).WithContext(ctx).
+		Model(&entities.Blog{}).
+		Preload("User").
+		Where("status = ?", "Published").
+		Where("published_at is not null").
+		Find(&data).Error
+
+	return data, err
 }
 
 func (repo *BlogRepository) CreateBlog(ctx context.Context, blog *entities.Blog) (*entities.Blog, error) {

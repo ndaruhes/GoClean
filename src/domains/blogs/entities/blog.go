@@ -19,7 +19,7 @@ type Blog struct {
 	Status      string     `json:"status" gorm:"type:varchar(255);default:'Draft';not null"`
 	PublishedAt *time.Time `json:"published_at"`
 	UserID      string     `json:"user_id" gorm:"type:varchar(255);not null"`
-	User        user.User
+	User        user.User  `json:"user"`
 	entities.Timestamp
 }
 
