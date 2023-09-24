@@ -17,6 +17,7 @@ import (
 
 func RegisterMiddlewares(router *fiber.App) {
 	router.Use(middlewares.LangMiddleware())
+	router.Use(middlewares.CorsMiddleware())
 }
 
 func RegisterRoutes(router *fiber.App) {

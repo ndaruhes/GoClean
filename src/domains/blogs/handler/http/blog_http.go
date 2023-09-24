@@ -37,7 +37,8 @@ func setRoutes(route *fiber.App, handler *BlogHttp) {
 	blog := route.Group("blog")
 	{
 		blog.Get("", handler.GetPublicBlogList)
-		blog.Use(middlewares.Authenticated())
+		blog.Get("/:id", handler.GetBlogDetail)
+		blog.Use(middlewares.AuthMiddleware())
 		blog.Post("", handler.CreateBlog)
 		blog.Put("/:id/edit", handler.AdjustBlog)
 		blog.Put("/:id/publish", handler.PublishBlog)
@@ -51,6 +52,22 @@ func setRoutes(route *fiber.App, handler *BlogHttp) {
 func (handler *BlogHttp) GetPublicBlogList(fiberCtx *fiber.Ctx) error {
 	ctx := utils.GetContext(fiberCtx)
 	if data, err := handler.blogUc.GetPublicBlogList(ctx); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
+			Error: err,
+		})
+	} else {
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
+			SuccessCode: "SUCCESS-BLOG-0007",
+			Data:        data,
+		})
+	}
+
+	return nil
+}
+
+func (handler *BlogHttp) GetBlogDetail(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
+	if data, err := handler.blogUc.GetBlogDetail(ctx, fiberCtx.Params("id")); err != nil {
 		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})

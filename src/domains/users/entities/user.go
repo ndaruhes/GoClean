@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/rs/xid"
-	"gorm.io/gorm"
 )
 
 type User struct {
@@ -18,7 +17,7 @@ type User struct {
 	entities.Timestamp
 }
 
-func (user *User) BeforeCreate(db *gorm.DB) error {
+func (user *User) BeforeCreate() error {
 	if user.ID == "" {
 		user.ID = strings.ToUpper(xid.New().String())
 	}

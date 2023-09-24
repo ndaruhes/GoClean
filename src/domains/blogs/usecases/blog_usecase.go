@@ -28,6 +28,7 @@ func NewBlogUseCase(blogRepo interfaces.BlogRepository, db *gorm.DB) *BlogUseCas
 	}
 }
 
+// BLOG USECASE
 func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context) ([]responses.PublicBlogListsResponse, error) {
 	data, err := uc.blogRepo.GetPublicBlogList(ctx)
 	if err != nil {
@@ -50,7 +51,23 @@ func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context) ([]responses.Publi
 	return blogs, nil
 }
 
-// BLOG USECASE
+func (uc *BlogUseCase) GetBlogDetail(ctx context.Context, id string) (*responses.BlogDetailResponse, error) {
+	data, err := uc.blogRepo.GetBlogDetail(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	blogResponse := &responses.BlogDetailResponse{
+		Title:       utils.GetStringPointerValue(data.Title),
+		Cover:       utils.GetStringPointerValue(data.Cover),
+		Content:     utils.GetStringPointerValue(data.Content),
+		Author:      data.User.Name,
+		PublishedAt: utils.GetTimePointerValue(data.PublishedAt),
+	}
+
+	return blogResponse, nil
+}
+
 func (uc *BlogUseCase) CreateBlog(ctx context.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
 	user := ctx.Value("member").(*responses.TokenDecoded)
 

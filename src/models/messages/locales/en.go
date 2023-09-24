@@ -20,7 +20,7 @@ var SuccessEN = map[string]string{
 	"SUCCESS-BLOG-0004": "Blog successfully published",
 	"SUCCESS-BLOG-0005": "Blog slug successfully updated",
 	"SUCCESS-BLOG-0006": "Blog successfully updated to draft",
-	"SUCCESS-BLOG-0007": "Get public blog successfully",
+	"SUCCESS-BLOG-0007": "Get blog successfully",
 }
 
 // === ERROR MESSAGES ===

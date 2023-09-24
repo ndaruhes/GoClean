@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Authenticated() fiber.Handler {
+func AuthMiddleware() fiber.Handler {
 	return func(fiberCtx *fiber.Ctx) error {
 		user, err := helpers.VerifyToken(fiberCtx)
 		if err != nil {

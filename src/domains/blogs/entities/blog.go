@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/rs/xid"
-	"gorm.io/gorm"
 )
 
 type Blog struct {
@@ -18,12 +17,12 @@ type Blog struct {
 	Content     *string    `json:"content" gorm:"type:text;null"`
 	Status      string     `json:"status" gorm:"type:varchar(255);default:'Draft';not null"`
 	PublishedAt *time.Time `json:"published_at"`
-	UserID      string     `json:"user_id" gorm:"type:varchar(255);not null"`
-	User        user.User  `json:"user"`
+	UserID      string     `json:"user_id" gorm:"type:varchar(255);not null;"`
+	User        user.User
 	entities.Timestamp
 }
 
-func (blog *Blog) BeforeCreate(db *gorm.DB) error {
+func (blog *Blog) BeforeCreate() error {
 	if blog.ID == "" {
 		blog.ID = strings.ToUpper(xid.New().String())
 	}

@@ -16,6 +16,7 @@ var config *Config
 
 type Config struct {
 	App      App
+	Cors     Cors
 	Database Database
 	Google   Google
 }
@@ -28,6 +29,14 @@ type App struct {
 	Key         string
 	Debug       bool
 	MigrateKey  string
+}
+
+type Cors struct {
+	AllowOrigins     string
+	AllowHeaders     string
+	AllowMethods     string
+	AllowCredentials bool
+	ExposeHeaders    string
 }
 
 type Database struct {

@@ -22,6 +22,31 @@ func NewBlogRepository(db *gorm.DB) *BlogRepository {
 }
 
 // BLOG REPOSITORY
+func (repo *BlogRepository) GetPublicBlogList(ctx context.Context) ([]entities.Blog, error) {
+	var response []entities.Blog
+	err := utils.GetDb(ctx, repo.db).WithContext(ctx).
+		Model(&entities.Blog{}).
+		Preload("User").
+		Where("status = ?", "Published").
+		Where("published_at is not null").
+		Find(&response).Error
+
+	return response, err
+}
+
+func (repo *BlogRepository) GetBlogDetail(ctx context.Context, id string) (*entities.Blog, error) {
+	var response *entities.Blog
+	err := utils.GetDb(ctx, repo.db).WithContext(ctx).
+		Model(&entities.Blog{}).
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("email, name")
+		}).
+		Where("id = ?", id).
+		First(&response).Error
+
+	return response, err
+}
+
 func (repo *BlogRepository) FindBlogById(ctx context.Context, id string) (*entities.Blog, error) {
 	var blog *entities.Blog
 	if err := utils.GetDb(ctx, repo.db).WithContext(ctx).Where("id = ?", id).First(&blog).Error; err != nil {
@@ -52,21 +77,6 @@ func (repo *BlogRepository) FindBlogBySlug(ctx context.Context, slug string) (*e
 	}
 
 	return blog, nil
-}
-
-func (repo *BlogRepository) GetPublicBlogList(ctx context.Context) ([]entities.Blog, error) {
-	var response []entities.Blog
-	err := utils.GetDb(ctx, repo.db).WithContext(ctx).
-		Model(&entities.Blog{}).
-		//Preload("User", func(db *gorm.DB) *gorm.DB {
-		//	return db.Select("name, email")
-		//}).
-		Preload("User").
-		Where("status = ?", "Published").
-		Where("published_at is not null").
-		Find(&response).Error
-
-	return response, err
 }
 
 func (repo *BlogRepository) CreateBlog(ctx context.Context, blog *entities.Blog) (*entities.Blog, error) {
