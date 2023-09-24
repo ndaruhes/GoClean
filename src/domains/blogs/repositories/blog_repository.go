@@ -39,7 +39,7 @@ func (repo *BlogRepository) GetBlogDetail(ctx context.Context, id string) (*enti
 	err := utils.GetDb(ctx, repo.db).WithContext(ctx).
 		Model(&entities.Blog{}).
 		Preload("User", func(db *gorm.DB) *gorm.DB {
-			return db.Select("email, name")
+			return db.Omit("id, email, password")
 		}).
 		Where("id = ?", id).
 		First(&response).Error

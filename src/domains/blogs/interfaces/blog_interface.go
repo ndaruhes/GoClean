@@ -26,7 +26,6 @@ type BlogRepository interface {
 	GetBlogDetail(ctx context.Context, id string) (*entities.Blog, error)
 	FindBlogById(ctx context.Context, id string) (*entities.Blog, error)
 	FindBlogBySlug(ctx context.Context, slug string) (*entities.Blog, error)
-
 	CreateBlog(ctx context.Context, blog *entities.Blog) (*entities.Blog, error)
 	UpdateBlog(ctx context.Context, blogID string, blogStatusCheck string, blog *entities.Blog) error
 	DeleteBlog(ctx context.Context, blogID string) error
