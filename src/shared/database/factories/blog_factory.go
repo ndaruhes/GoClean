@@ -34,7 +34,7 @@ func BlogFactory() []entities.Blog {
 			UserID:  randomUser.ID,
 		}
 
-		now := time.Now().UTC()
+		now := time.Now().UTC().Add(1 * time.Hour)
 		if blog.Status == "Published" {
 			blog.PublishedAt = &now
 		}
