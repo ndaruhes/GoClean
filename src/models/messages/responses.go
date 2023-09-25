@@ -20,35 +20,35 @@ var ErrorCodes = map[string]map[string]string{
 	"id": locales.ErrorID,
 }
 
-func SendSuccessResponse(fiberCtx *fiber.Ctx, successResponse responses.SuccessResponse) {
+func SendBasicResponse(fiberCtx *fiber.Ctx, basicResponse responses.BasicResponse) {
 	lang := fiberCtx.Locals("lang").(string)
 	var message string
 
-	if successResponse.StatusCode == 0 {
-		successResponse.StatusCode = http.StatusOK
+	if basicResponse.StatusCode == 0 {
+		basicResponse.StatusCode = http.StatusOK
 	}
 
-	if (successResponse.SuccessCode != "") && (SuccessCodes[lang] == nil || SuccessCodes[lang][successResponse.SuccessCode] == "") {
+	if (basicResponse.SuccessCode != "") && (SuccessCodes[lang] == nil || SuccessCodes[lang][basicResponse.SuccessCode] == "") {
 		fiberCtx.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"error":   "Success code is not defined",
 			"status":  http.StatusText(http.StatusInternalServerError),
 		})
 		return
-	} else if successResponse.SuccessCode != "" {
-		message = SuccessCodes[lang][successResponse.SuccessCode]
+	} else if basicResponse.SuccessCode != "" {
+		message = SuccessCodes[lang][basicResponse.SuccessCode]
 	}
 
 	body := fiber.Map{
 		"success": true,
-		"status":  http.StatusText(successResponse.StatusCode),
+		"status":  http.StatusText(basicResponse.StatusCode),
 		"message": message,
 	}
 
-	if successResponse.Data != nil {
-		body["data"] = successResponse.Data
+	if basicResponse.Data != nil {
+		body["data"] = basicResponse.Data
 	}
-	fiberCtx.Status(successResponse.StatusCode).JSON(body)
+	fiberCtx.Status(basicResponse.StatusCode).JSON(body)
 }
 
 func SendErrorResponse(fiberCtx *fiber.Ctx, errorResponse responses.ErrorResponse) {

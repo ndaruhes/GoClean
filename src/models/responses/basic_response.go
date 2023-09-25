@@ -1,6 +1,6 @@
 package responses
 
-type SuccessResponse struct {
+type BasicResponse struct {
 	SuccessCode string
 	StatusCode  int
 	Data        interface{}
