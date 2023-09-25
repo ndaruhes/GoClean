@@ -69,7 +69,7 @@ func (handler *BlogHttp) GetPublicBlogList(fiberCtx *fiber.Ctx) error {
 		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0007",
 			Data:        data,
-			TotalData:   totalData,
+			TotalData:   &totalData,
 		})
 	}
 

@@ -32,15 +32,15 @@ func Commit(ctx context.Context) {
 func PaginateOrder(request requests.PaginationRequest) func(db *gorm.DB) *gorm.DB {
 	page := request.Page
 	size := request.Size
-	orderBy := request.OrderBy
-	order := request.Order
+	sortOrder := request.SortOrder
+	sortBy := request.SortBy
 
 	return func(db *gorm.DB) *gorm.DB {
 		offset := (page - 1) * size
 		db = db.Offset(offset).Limit(size)
 
-		if orderBy != "" && order != "" {
-			db = db.Order(fmt.Sprintf("%s %s", orderBy, order))
+		if sortOrder != "" && sortBy != "" {
+			db = db.Order(fmt.Sprintf("%s %s", sortOrder, sortBy))
 		}
 
 		return db

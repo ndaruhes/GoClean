@@ -43,8 +43,8 @@ func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requ
 		statement = statement.Where("title ILIKE ? or content ILIKE ?", "%"+request.Search+"%", "%"+request.Search+"%")
 	}
 
-	err := statement.Scopes(operation.PaginateOrder(request.PaginationRequest)).
-		Count(&totalData).
+	err := statement.Count(&totalData).
+		Scopes(operation.PaginateOrder(request.PaginationRequest)).
 		Find(&response).Error
 
 	return response, totalData, err

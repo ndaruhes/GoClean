@@ -4,7 +4,7 @@ type SuccessResponse struct {
 	SuccessCode string
 	StatusCode  int
 	Data        interface{}
-	TotalData   int64
+	TotalData   *int64
 }
 
 type ErrorResponse struct {

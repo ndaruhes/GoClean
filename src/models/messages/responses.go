@@ -49,7 +49,7 @@ func SendSuccessResponse(fiberCtx *fiber.Ctx, successResponse responses.SuccessR
 		body["data"] = successResponse.Data
 	}
 
-	if successResponse.TotalData != 0 {
+	if successResponse.TotalData != nil {
 		body["totalData"] = successResponse.TotalData
 	}
 	fiberCtx.Status(successResponse.StatusCode).JSON(body)
