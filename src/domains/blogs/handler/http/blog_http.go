@@ -51,14 +51,25 @@ func setRoutes(route *fiber.App, handler *BlogHttp) {
 
 func (handler *BlogHttp) GetPublicBlogList(fiberCtx *fiber.Ctx) error {
 	ctx := utils.GetContext(fiberCtx)
-	if data, err := handler.blogUc.GetPublicBlogList(ctx); err != nil {
+
+	request := &requests.BlogListFilter{}
+	if err := fiberCtx.QueryParser(request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
+			Error:      err,
+			StatusCode: http.StatusBadRequest,
+		})
+		return nil
+	}
+
+	if data, totalData, err := handler.blogUc.GetPublicBlogList(ctx, request); err != nil {
 		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0007",
 			Data:        data,
+			TotalData:   totalData,
 		})
 	}
 
@@ -72,7 +83,7 @@ func (handler *BlogHttp) GetBlogDetail(fiberCtx *fiber.Ctx) error {
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0007",
 			Data:        data,
 		})
@@ -97,7 +108,7 @@ func (handler *BlogHttp) CreateBlog(fiberCtx *fiber.Ctx) error {
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0001",
 		})
 	}
@@ -121,7 +132,7 @@ func (handler *BlogHttp) AdjustBlog(fiberCtx *fiber.Ctx) error {
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0002",
 		})
 	}
@@ -162,7 +173,7 @@ func (handler *BlogHttp) PublishBlog(fiberCtx *fiber.Ctx) error {
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0004",
 		})
 	}
@@ -203,7 +214,7 @@ func (handler *BlogHttp) UpdateBlog(fiberCtx *fiber.Ctx) error {
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0002",
 		})
 	}
@@ -218,7 +229,7 @@ func (handler *BlogHttp) DeleteBlog(fiberCtx *fiber.Ctx) error {
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0003",
 		})
 	}
@@ -250,7 +261,7 @@ func (handler *BlogHttp) UpdateSlug(fiberCtx *fiber.Ctx) error {
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0005",
 		})
 	}
@@ -265,7 +276,7 @@ func (handler *BlogHttp) UpdateToDraft(fiberCtx *fiber.Ctx) error {
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0006",
 		})
 	}

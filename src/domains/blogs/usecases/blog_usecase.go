@@ -8,6 +8,7 @@ import (
 	"go-clean/src/models/messages"
 	"go-clean/src/models/requests"
 	"go-clean/src/models/responses"
+	"go-clean/src/shared/database/operation"
 	"go-clean/src/shared/utils"
 	"go-clean/src/shared/validators"
 	"net/http"
@@ -29,10 +30,10 @@ func NewBlogUseCase(blogRepo interfaces.BlogRepository, db *gorm.DB) *BlogUseCas
 }
 
 // BLOG USECASE
-func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context) ([]responses.PublicBlogListsResponse, error) {
-	data, err := uc.blogRepo.GetPublicBlogList(ctx)
+func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context, request *requests.BlogListFilter) ([]responses.PublicBlogListsResponse, int64, error) {
+	data, totalData, err := uc.blogRepo.GetPublicBlogList(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	var blogs []responses.PublicBlogListsResponse
 
@@ -50,7 +51,7 @@ func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context) ([]responses.Publi
 		blogs = append(blogs, blogResponses)
 	}
 
-	return blogs, nil
+	return blogs, totalData, nil
 }
 
 func (uc *BlogUseCase) GetBlogDetail(ctx context.Context, id string) (*responses.BlogDetailResponse, error) {
@@ -95,7 +96,7 @@ func (uc *BlogUseCase) CreateBlog(ctx context.Context, request *requests.UpsertB
 		}
 	}
 
-	tx, ctx := utils.BeginTransaction(ctx, uc.db)
+	tx, ctx := operation.BeginTransaction(ctx, uc.db)
 	newBlog, err := uc.blogRepo.CreateBlog(ctx, blogPayload)
 	if err != nil {
 		tx.Rollback()
@@ -123,7 +124,7 @@ func (uc *BlogUseCase) CreateBlog(ctx context.Context, request *requests.UpsertB
 		}
 	}
 
-	utils.Commit(ctx)
+	operation.Commit(ctx)
 
 	if file != nil && fileName != "" {
 		compressed, err := utils.CompressFile(file, 70)
@@ -171,7 +172,7 @@ func (uc *BlogUseCase) AdjustBlog(ctx context.Context, blogID string, request *r
 		return err
 	}
 
-	tx, ctx := utils.BeginTransaction(ctx, uc.db)
+	tx, ctx := operation.BeginTransaction(ctx, uc.db)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.DRAFT, payload); err != nil {
 		tx.Rollback()
@@ -186,7 +187,7 @@ func (uc *BlogUseCase) AdjustBlog(ctx context.Context, blogID string, request *r
 		return err
 	}
 
-	utils.Commit(ctx)
+	operation.Commit(ctx)
 
 	if err = uploadAndDeleteSingleFile(ctx, blog, file, fileName); err != nil {
 		return err
@@ -225,7 +226,7 @@ func (uc *BlogUseCase) PublishBlog(ctx context.Context, blogID string, request *
 		return err
 	}
 
-	tx, ctx := utils.BeginTransaction(ctx, uc.db)
+	tx, ctx := operation.BeginTransaction(ctx, uc.db)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.DRAFT, payload); err != nil {
 		tx.Rollback()
@@ -240,7 +241,7 @@ func (uc *BlogUseCase) PublishBlog(ctx context.Context, blogID string, request *
 		return err
 	}
 
-	utils.Commit(ctx)
+	operation.Commit(ctx)
 
 	if err = uploadAndDeleteSingleFile(ctx, blog, file, fileName); err != nil {
 		return err
@@ -269,7 +270,7 @@ func (uc *BlogUseCase) UpdateBlog(ctx context.Context, blogID string, request *r
 		return err
 	}
 
-	tx, ctx := utils.BeginTransaction(ctx, uc.db)
+	tx, ctx := operation.BeginTransaction(ctx, uc.db)
 
 	if err := uc.blogRepo.UpdateBlog(ctx, blogID, constants.PUBLISHED, payload); err != nil {
 		tx.Rollback()
@@ -284,7 +285,7 @@ func (uc *BlogUseCase) UpdateBlog(ctx context.Context, blogID string, request *r
 		return err
 	}
 
-	utils.Commit(ctx)
+	operation.Commit(ctx)
 
 	if err = uploadAndDeleteSingleFile(ctx, blog, file, fileName); err != nil {
 		return err

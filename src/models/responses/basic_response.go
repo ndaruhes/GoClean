@@ -1,9 +1,10 @@
 package responses
 
-type BasicResponse struct {
+type SuccessResponse struct {
 	SuccessCode string
 	StatusCode  int
 	Data        interface{}
+	TotalData   int64
 }
 
 type ErrorResponse struct {

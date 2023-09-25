@@ -10,3 +10,9 @@ type UpsertBlogRequest struct {
 type UpdateSlugRequest struct {
 	Title string `json:"title" validate:"required"`
 }
+
+type BlogListFilter struct {
+	Title  string `json:"title" form:"title"`
+	Search string `json:"search" form:"search"`
+	PaginationRequest
+}

@@ -22,7 +22,7 @@ func RegisterMiddlewares(router *fiber.App) {
 
 func RegisterRoutes(router *fiber.App) {
 	router.Get("/", func(fiberCtx *fiber.Ctx) error {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BASIC-0001",
 			StatusCode:  http.StatusOK,
 		})
@@ -45,7 +45,7 @@ func migrate(fiberCtx *fiber.Ctx) error {
 				StatusCode: http.StatusInternalServerError,
 			})
 		} else {
-			messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+			messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 				SuccessCode: "SUCCESS-DB-0001",
 			})
 		}
@@ -67,7 +67,7 @@ func seedData(fiberCtx *fiber.Ctx) error {
 			StatusCode: http.StatusInternalServerError,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-DB-0002",
 		})
 	}

@@ -64,7 +64,7 @@ func (handler *AuthHttp) RegisterWithEmailPassword(fiberCtx *fiber.Ctx) error {
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-AUTH-0001",
 		})
 	}
@@ -98,7 +98,7 @@ func (handler *AuthHttp) LoginByPass(fiberCtx *fiber.Ctx) error {
 			Error: err,
 		})
 	} else {
-		messages.SendBasicResponse(fiberCtx, responses.BasicResponse{
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-AUTH-0002",
 			Data:        data,
 		})
