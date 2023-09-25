@@ -26,9 +26,12 @@ func (repo *BlogRepository) GetPublicBlogList(ctx context.Context) ([]entities.B
 	var response []entities.Blog
 	err := utils.GetDb(ctx, repo.db).WithContext(ctx).
 		Model(&entities.Blog{}).
-		Preload("User").
-		Where("status = ?", "Published").
-		Where("published_at is not null").
+		Select("id, content, title, cover, slug, published_at, user_id").
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, name")
+		}).
+		Where("blogs.status = ?", "Published").
+		Where("blogs.published_at IS NOT NULL").
 		Find(&response).Error
 
 	return response, err
@@ -38,9 +41,12 @@ func (repo *BlogRepository) GetBlogDetail(ctx context.Context, id string) (*enti
 	var response *entities.Blog
 	err := utils.GetDb(ctx, repo.db).WithContext(ctx).
 		Model(&entities.Blog{}).
+		Select("id, content, title, cover, slug, published_at, user_id").
 		Preload("User", func(db *gorm.DB) *gorm.DB {
-			return db.Omit("id, email, password")
+			return db.Select("id, name, role")
 		}).
+		Where("status = ?", "Published").
+		Where("published_at IS NOT NULL").
 		Where("id = ?", id).
 		First(&response).Error
 

@@ -3,6 +3,7 @@ package entities
 import (
 	user "go-clean/src/domains/users/entities"
 	"go-clean/src/shared/entities"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 
@@ -22,7 +23,7 @@ type Blog struct {
 	entities.Timestamp
 }
 
-func (blog *Blog) BeforeCreate() error {
+func (blog *Blog) BeforeCreate(db *gorm.DB) error {
 	if blog.ID == "" {
 		blog.ID = strings.ToUpper(xid.New().String())
 	}

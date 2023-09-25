@@ -2,6 +2,7 @@ package entities
 
 import (
 	"go-clean/src/shared/entities"
+	"gorm.io/gorm"
 	"strings"
 
 	"github.com/rs/xid"
@@ -17,7 +18,7 @@ type User struct {
 	entities.Timestamp
 }
 
-func (user *User) BeforeCreate() error {
+func (user *User) BeforeCreate(db *gorm.DB) error {
 	if user.ID == "" {
 		user.ID = strings.ToUpper(xid.New().String())
 	}

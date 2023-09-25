@@ -38,6 +38,8 @@ func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context) ([]responses.Publi
 
 	for _, blog := range data {
 		blogResponses := responses.PublicBlogListsResponse{
+			ID:          blog.ID,
+			Slug:        blog.Slug,
 			Title:       utils.GetStringPointerValue(blog.Title),
 			Cover:       utils.GetStringPointerValue(blog.Cover),
 			Content:     utils.GetStringPointerValue(blog.Content),
@@ -52,17 +54,19 @@ func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context) ([]responses.Publi
 }
 
 func (uc *BlogUseCase) GetBlogDetail(ctx context.Context, id string) (*responses.BlogDetailResponse, error) {
-	data, err := uc.blogRepo.GetBlogDetail(ctx, id)
+	blog, err := uc.blogRepo.GetBlogDetail(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	blogResponse := &responses.BlogDetailResponse{
-		Title:       utils.GetStringPointerValue(data.Title),
-		Cover:       utils.GetStringPointerValue(data.Cover),
-		Content:     utils.GetStringPointerValue(data.Content),
-		Author:      data.User.Name,
-		PublishedAt: utils.GetTimePointerValue(data.PublishedAt),
+		ID:          blog.ID,
+		Slug:        blog.Slug,
+		Title:       utils.GetStringPointerValue(blog.Title),
+		Cover:       utils.GetStringPointerValue(blog.Cover),
+		Content:     utils.GetStringPointerValue(blog.Content),
+		Author:      blog.User.Name,
+		PublishedAt: utils.GetTimePointerValue(blog.PublishedAt),
 	}
 
 	return blogResponse, nil

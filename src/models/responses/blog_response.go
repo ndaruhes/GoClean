@@ -3,6 +3,8 @@ package responses
 import "time"
 
 type PublicBlogListsResponse struct {
+	ID          string    `json:"id"`
+	Slug        string    `json:"slug"`
 	Title       string    `json:"title"`
 	Cover       string    `json:"cover"`
 	Content     string    `json:"content"`
@@ -11,6 +13,8 @@ type PublicBlogListsResponse struct {
 }
 
 type BlogDetailResponse struct {
+	ID          string    `json:"id"`
+	Slug        string    `json:"slug"`
 	Title       string    `json:"title"`
 	Cover       string    `json:"cover"`
 	Content     string    `json:"content"`
