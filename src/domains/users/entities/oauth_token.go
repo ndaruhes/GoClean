@@ -1,7 +1,7 @@
 package entities
 
 import (
-	"go-clean/src/shared/entities"
+	"go-clean/src/shared/database/entities"
 	"strings"
 	"time"
 

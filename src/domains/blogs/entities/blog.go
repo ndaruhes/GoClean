@@ -2,7 +2,7 @@ package entities
 
 import (
 	user "go-clean/src/domains/users/entities"
-	"go-clean/src/shared/entities"
+	"go-clean/src/shared/database/entities"
 	"gorm.io/gorm"
 	"strings"
 	"time"

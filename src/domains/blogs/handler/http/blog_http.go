@@ -37,6 +37,7 @@ func setRoutes(route *fiber.App, handler *BlogHttp) {
 	blog := route.Group("blog")
 	{
 		blog.Get("", handler.GetPublicBlogList)
+		blog.Post("/", handler.SearchBlog)
 		blog.Get("/:id", handler.GetBlogDetail)
 		blog.Use(middlewares.AuthMiddleware())
 		blog.Post("", handler.CreateBlog)
@@ -52,10 +53,19 @@ func setRoutes(route *fiber.App, handler *BlogHttp) {
 func (handler *BlogHttp) GetPublicBlogList(fiberCtx *fiber.Ctx) error {
 	ctx := utils.GetContext(fiberCtx)
 
-	request := &requests.BlogListFilter{}
+	request := &requests.BlogListRequest{}
 	if err := fiberCtx.QueryParser(request); err != nil {
 		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error:      err,
+			StatusCode: http.StatusBadRequest,
+		})
+		return nil
+	}
+
+	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
+			Error:      err,
+			FormErrors: formErrors,
 			StatusCode: http.StatusBadRequest,
 		})
 		return nil
@@ -68,6 +78,41 @@ func (handler *BlogHttp) GetPublicBlogList(fiberCtx *fiber.Ctx) error {
 	} else {
 		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
 			SuccessCode: "SUCCESS-BLOG-0007",
+			Data:        data,
+			TotalData:   &totalData,
+		})
+	}
+
+	return nil
+}
+
+func (handler *BlogHttp) SearchBlog(fiberCtx *fiber.Ctx) error {
+	ctx := utils.GetContext(fiberCtx)
+	request := &requests.SearchBlogRequest{}
+	if err := fiberCtx.QueryParser(request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
+			Error:      err,
+			StatusCode: http.StatusBadRequest,
+		})
+		return nil
+	}
+
+	if formErrors, err := validators.ValidateStruct(ctx, request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
+			Error:      err,
+			FormErrors: formErrors,
+			StatusCode: http.StatusBadRequest,
+		})
+		return nil
+	}
+
+	if data, totalData, err := handler.blogUc.SearchBlog(ctx, request); err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
+			Error: err,
+		})
+	} else {
+		messages.SendSuccessResponse(fiberCtx, responses.SuccessResponse{
+			SuccessCode: "SUCCESS-BLOG-0008",
 			Data:        data,
 			TotalData:   &totalData,
 		})

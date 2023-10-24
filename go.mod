@@ -5,6 +5,7 @@ go 1.19
 require (
 	cloud.google.com/go/storage v1.31.0
 	github.com/bxcodec/faker/v3 v3.8.1
+	github.com/filestack/filestack-go v0.0.0-20210721122804-459ef6dd7a64
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.14.1

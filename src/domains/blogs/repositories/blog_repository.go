@@ -23,7 +23,7 @@ func NewBlogRepository(db *gorm.DB) *BlogRepository {
 }
 
 // BLOG REPOSITORY
-func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requests.BlogListFilter) ([]entities.Blog, int64, error) {
+func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requests.BlogListRequest) ([]entities.Blog, int64, error) {
 	var response []entities.Blog
 	var totalData int64
 	statement := operation.GetDb(ctx, repo.db).WithContext(ctx).
@@ -35,13 +35,26 @@ func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requ
 		Where("blogs.status = ?", "Published").
 		Where("blogs.published_at IS NOT NULL")
 
-	if request.Title != "" {
-		statement = statement.Where("title ILIKE ?", "%"+request.Title+"%")
-	}
+	err := statement.Count(&totalData).
+		Scopes(operation.PaginateOrder(request.PaginationRequest)).
+		Find(&response).Error
 
-	if request.Search != "" {
-		statement = statement.Where("title ILIKE ? or content ILIKE ?", "%"+request.Search+"%", "%"+request.Search+"%")
-	}
+	return response, totalData, err
+}
+
+func (repo *BlogRepository) SearchBlog(ctx context.Context, request *requests.SearchBlogRequest) ([]entities.Blog, int64, error) {
+	var response []entities.Blog
+	var totalData int64
+	statement := operation.GetDb(ctx, repo.db).WithContext(ctx).
+		Model(&entities.Blog{}).
+		Select("id, content, title, cover, slug, published_at, user_id").
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, name")
+		}).
+		Where("blogs.status = ?", "Published").
+		Where("blogs.published_at IS NOT NULL").
+		Where("title ILIKE ?", "%"+request.Title+"%").
+		Where("title ILIKE ? or content ILIKE ?", "%"+request.Search+"%", "%"+request.Search+"%")
 
 	err := statement.Count(&totalData).
 		Scopes(operation.PaginateOrder(request.PaginationRequest)).

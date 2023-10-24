@@ -1,6 +1,8 @@
 package entities
 
-import "go-clean/src/shared/entities"
+import (
+	"go-clean/src/shared/database/entities"
+)
 
 type CategoryBlog struct {
 	ID               int `json:"id" gorm:"primaryKey"`

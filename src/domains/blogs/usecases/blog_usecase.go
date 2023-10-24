@@ -30,8 +30,32 @@ func NewBlogUseCase(blogRepo interfaces.BlogRepository, db *gorm.DB) *BlogUseCas
 }
 
 // BLOG USECASE
-func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context, request *requests.BlogListFilter) ([]responses.PublicBlogListsResponse, int64, error) {
+func (uc *BlogUseCase) GetPublicBlogList(ctx context.Context, request *requests.BlogListRequest) ([]responses.PublicBlogListsResponse, int64, error) {
 	data, totalData, err := uc.blogRepo.GetPublicBlogList(ctx, request)
+	if err != nil {
+		return nil, 0, err
+	}
+	var blogs []responses.PublicBlogListsResponse
+
+	for _, blog := range data {
+		blogResponses := responses.PublicBlogListsResponse{
+			ID:          blog.ID,
+			Slug:        blog.Slug,
+			Title:       utils.GetStringPointerValue(blog.Title),
+			Cover:       utils.GetStringPointerValue(blog.Cover),
+			Content:     utils.GetStringPointerValue(blog.Content),
+			Author:      blog.User.Name,
+			PublishedAt: utils.GetTimePointerValue(blog.PublishedAt),
+		}
+
+		blogs = append(blogs, blogResponses)
+	}
+
+	return blogs, totalData, nil
+}
+
+func (uc *BlogUseCase) SearchBlog(ctx context.Context, request *requests.SearchBlogRequest) ([]responses.PublicBlogListsResponse, int64, error) {
+	data, totalData, err := uc.blogRepo.SearchBlog(ctx, request)
 	if err != nil {
 		return nil, 0, err
 	}
