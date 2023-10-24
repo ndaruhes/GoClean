@@ -37,7 +37,7 @@ func setRoutes(route *fiber.App, handler *BlogHttp) {
 	blog := route.Group("blog")
 	{
 		blog.Get("", handler.GetPublicBlogList)
-		blog.Post("/", handler.SearchBlog)
+		blog.Get("/search", handler.SearchBlog)
 		blog.Get("/:id", handler.GetBlogDetail)
 		blog.Use(middlewares.AuthMiddleware())
 		blog.Post("", handler.CreateBlog)

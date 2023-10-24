@@ -25,5 +25,4 @@ func FilestackUploadFile() {
 	}
 
 	fmt.Println(fileLink.AsString())
-
 }
