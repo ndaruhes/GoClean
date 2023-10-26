@@ -72,6 +72,7 @@ func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requ
 			"slug":         blog.Slug,
 			"published_at": blog.PublishedAt,
 			"user_id":      blog.UserID,
+			"user":         blog.User,
 		}
 
 		_, err := esClient.Index().
