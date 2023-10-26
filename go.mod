@@ -13,6 +13,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/h2non/bimg v1.1.9
 	github.com/joho/godotenv v1.5.1
+	github.com/olivere/elastic/v7 v7.0.32
 	github.com/rs/xid v1.5.0
 	github.com/spf13/viper v1.16.0
 	golang.org/x/crypto v0.11.0
@@ -51,7 +52,6 @@ require (
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/olivere/elastic/v7 v7.0.32 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect

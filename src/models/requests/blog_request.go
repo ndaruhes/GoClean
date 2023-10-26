@@ -15,7 +15,6 @@ type BlogListRequest struct {
 }
 
 type SearchBlogRequest struct {
-	Title  string `json:"title" form:"title"`
-	Search string `json:"search" form:"search"`
+	Keyword string `json:"keyword" form:"keyword"`
 	PaginationRequest
 }

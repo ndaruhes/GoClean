@@ -6,5 +6,6 @@ const (
 )
 
 const (
-	IMG_PATH = "src/public/images/blogs/USER-"
+	IMG_PATH    = "src/public/images/blogs/USER-"
+	MODULE_NAME = "blogs"
 )

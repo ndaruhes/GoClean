@@ -1,22 +1,29 @@
-app:
+App:
   Port: 8100
-  Name: GoClean
+  Name: ndaruhes-fresh
   Locale: en
   Environment: develop
   Key: asfsfdsf
   Debug: true
   MigrateKey:
 
-cors:
+Cors:
   AllowOrigins: http://localhost:3000
   AllowHeaders: Origin, Content-Type, Accept
   AllowMethods: GET, POST, PATCH, DELETE
   AllowCredentials: true
   ExposeHeaders: "*"
 
-database:
-  host: 172.17.0.1
-  port: 5432
-  name: ndaruhes_fresh
-  username: postgres
-  password: root
+Database:
+  Host: localhost
+  Port: 5432
+  Name: ndaruhes_fresh
+  Username: postgres
+  Password: root
+
+Elasticsearch:
+  Username: elastic
+  Password: w3j1NovY_Lxmtn__Wneq
+
+OutboundURL:
+  ElasticsearchOutbound: http://localhost:9200

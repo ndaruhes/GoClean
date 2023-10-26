@@ -15,10 +15,12 @@ import (
 var config *Config
 
 type Config struct {
-	App      App
-	Cors     Cors
-	Database Database
-	Google   Google
+	App           App
+	Cors          Cors
+	Database      Database
+	Elasticsearch Elasticsearch
+	Google        Google
+	OutboundURL   OutboundURL
 }
 
 type App struct {
@@ -47,11 +49,20 @@ type Database struct {
 	Password string
 }
 
+type Elasticsearch struct {
+	Username string
+	Password string
+}
+
 type Google struct {
 	ClientID             string
 	ClientSecret         string
 	PrivateStorageBucket string
 	PublicStorageBucket  string
+}
+
+type OutboundURL struct {
+	ElasticsearchOutbound string
 }
 
 func loadConfig(appEnvironment string, appRootFolder string) (*viper.Viper, error) {

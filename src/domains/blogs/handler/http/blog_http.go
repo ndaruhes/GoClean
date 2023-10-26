@@ -24,7 +24,8 @@ type BlogHttp struct {
 
 func NewBlogHttp(route *fiber.App) *BlogHttp {
 	db := infrastructures.ConnectDatabase()
-	blogRepo := blogRepository.NewBlogRepository(db)
+	elasticsearch := infrastructures.CreateElasticsearchClient()
+	blogRepo := blogRepository.NewBlogRepository(db, elasticsearch)
 	blogUc := blogUseCase.NewBlogUseCase(blogRepo, db)
 
 	handler := &BlogHttp{blogUc: blogUc}

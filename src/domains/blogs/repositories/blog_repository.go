@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/olivere/elastic/v7"
+	"go-clean/src/app/config"
+	"go-clean/src/domains/blogs/constants"
 	"go-clean/src/domains/blogs/entities"
 	"go-clean/src/models/messages"
 	"go-clean/src/models/requests"
@@ -15,25 +18,18 @@ import (
 )
 
 type BlogRepository struct {
-	db *gorm.DB
+	db       *gorm.DB
+	esClient *elastic.Client
 }
 
-func NewBlogRepository(db *gorm.DB) *BlogRepository {
+func NewBlogRepository(db *gorm.DB, esClient *elastic.Client) *BlogRepository {
 	return &BlogRepository{
-		db: db,
+		db:       db,
+		esClient: esClient,
 	}
 }
 
-func createElasticsearchClient() (*elastic.Client, error) {
-	client, err := elastic.NewClient(
-		elastic.SetURL("http://localhost:9200"),
-		elastic.SetBasicAuth("elastic", "RvEDyIJxxG1XS-IH8Ois"),
-	)
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
-}
+var esIndexName = fmt.Sprintf("%s_%s_%s", config.GetConfig().App.Name, config.GetConfig().App.Environment, constants.MODULE_NAME)
 
 // BLOG REPOSITORY
 func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requests.BlogListRequest) ([]entities.Blog, int64, error) {
@@ -56,12 +52,6 @@ func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requ
 		return nil, 0, err
 	}
 
-	// Create Elasticsearch client
-	esClient, err := createElasticsearchClient()
-	if err != nil {
-		return nil, 0, err
-	}
-
 	// Index the data into Elasticsearch
 	for _, blog := range response {
 		doc := map[string]interface{}{
@@ -75,8 +65,8 @@ func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requ
 			"user":         blog.User,
 		}
 
-		_, err := esClient.Index().
-			Index("ndaruhes-fresh_local_blogs").
+		_, err := repo.esClient.Index().
+			Index(esIndexName).
 			Type("_doc").
 			Id(blog.ID).
 			BodyJson(doc).
@@ -89,53 +79,21 @@ func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requ
 	return response, totalData, err
 }
 
-//func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requests.BlogListRequest) ([]entities.Blog, int64, error) {
-//	var response []entities.Blog
-//	var totalData int64
-//	statement := operation.GetDb(ctx, repo.db).WithContext(ctx).
-//		Model(&entities.Blog{}).
-//		Select("id, content, title, cover, slug, published_at, user_id").
-//		Preload("User", func(db *gorm.DB) *gorm.DB {
-//			return db.Select("id, name")
-//		}).
-//		Where("blogs.status = ?", "Published").
-//		Where("blogs.published_at IS NOT NULL")
-//
-//	err := statement.Count(&totalData).
-//		Scopes(operation.PaginateOrder(request.PaginationRequest)).
-//		Find(&response).Error
-//
-//	return response, totalData, err
-//}
-
 func (repo *BlogRepository) SearchBlog(ctx context.Context, request *requests.SearchBlogRequest) ([]entities.Blog, int64, error) {
 	var response []entities.Blog
 	var totalData int64
 
-	// Create the Elasticsearch client
-	esClient, err := createElasticsearchClient()
-	if err != nil {
-		return nil, 0, err
-	}
-
-	// Calculate the From and Size values based on the pagination request
-	from := (request.Page - 1) * request.Size
-	size := request.Size
-
-	// Create an Elasticsearch query
-	esQuery := elastic.NewBoolQuery().
-		Must(elastic.NewMatchQuery("title", request.Title)).
-		Should(
-			elastic.NewMatchQuery("title", request.Search),
-			elastic.NewMatchQuery("content", request.Search),
-		)
+	// Create an Elasticsearch query with fuzzy matching
+	esQuery := elastic.NewBoolQuery().Should(
+		elastic.NewMatchQuery("title", request.Keyword).Fuzziness("2").
+			Operator("and").
+			Analyzer("custom_analyzer"),
+	)
 
 	// Perform the search using the Elasticsearch client
-	searchResult, err := esClient.Search().
-		Index("ndaruhes-fresh_local_blogs").
+	searchResult, err := repo.esClient.Search().
+		Index(esIndexName).
 		Query(esQuery).
-		From(from).
-		Size(size).
 		Do(ctx)
 
 	if err != nil {
@@ -157,27 +115,6 @@ func (repo *BlogRepository) SearchBlog(ctx context.Context, request *requests.Se
 
 	return response, totalData, nil
 }
-
-//func (repo *BlogRepository) SearchBlog(ctx context.Context, request *requests.SearchBlogRequest) ([]entities.Blog, int64, error) {
-//	var response []entities.Blog
-//	var totalData int64
-//	statement := operation.GetDb(ctx, repo.db).WithContext(ctx).
-//		Model(&entities.Blog{}).
-//		Select("id, content, title, cover, slug, published_at, user_id").
-//		Preload("User", func(db *gorm.DB) *gorm.DB {
-//			return db.Select("id, name")
-//		}).
-//		Where("blogs.status = ?", "Published").
-//		Where("blogs.published_at IS NOT NULL").
-//		Where("title ILIKE ?", "%"+request.Title+"%").
-//		Where("title ILIKE ? or content ILIKE ?", "%"+request.Search+"%", "%"+request.Search+"%")
-//
-//	err := statement.Count(&totalData).
-//		Scopes(operation.PaginateOrder(request.PaginationRequest)).
-//		Find(&response).Error
-//
-//	return response, totalData, err
-//}
 
 func (repo *BlogRepository) GetBlogDetail(ctx context.Context, id string) (*entities.Blog, error) {
 	var response *entities.Blog
