@@ -91,7 +91,8 @@ func (repo *BlogRepository) SearchBlog(ctx context.Context, request *requests.Se
 	esQuery := elastic.NewBoolQuery().Should(
 		elastic.NewMatchQuery("title", request.Keyword).
 			Fuzziness(fuzziness).
-			Operator("and"),
+			Operator("and").
+			FuzzyTranspositions(true),
 	)
 
 	searchResult, err := repo.esClient.Search().
