@@ -1,8 +1,9 @@
 App:
   Port: 8100
-  Name: ndaruhes-fresh
+  Name: GoClean
+  AliasName: go-clean
   Locale: en
-  Environment: develop
+  Environment: local
   Key: asfsfdsf
   Debug: true
   MigrateKey:
@@ -23,7 +24,8 @@ Database:
 
 Elasticsearch:
   Username: elastic
-  Password: w3j1NovY_Lxmtn__Wneq
+  Password: w3j1NovY_Lxmtn__Wneq #PC
+#  Password: RvEDyIJxxG1XS-IH8Ois # Laptop
 
 OutboundURL:
   ElasticsearchOutbound: http://localhost:9200

@@ -26,6 +26,7 @@ type Config struct {
 type App struct {
 	Port        int
 	Name        string
+	AliasName   string
 	Environment string
 	Locale      string
 	Key         string

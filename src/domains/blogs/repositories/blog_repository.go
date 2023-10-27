@@ -30,7 +30,7 @@ func NewBlogRepository(db *gorm.DB, esClient *elastic.Client) *BlogRepository {
 	}
 }
 
-var esIndexName = fmt.Sprintf("%s_%s_%s", config.GetConfig().App.Name, config.GetConfig().App.Environment, constants.MODULE_NAME)
+var esIndexName = fmt.Sprintf("%s_%s_%s", config.GetConfig().App.AliasName, config.GetConfig().App.Environment, constants.MODULE_NAME)
 
 // BLOG REPOSITORY
 func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requests.BlogListRequest) ([]entities.Blog, int64, error) {

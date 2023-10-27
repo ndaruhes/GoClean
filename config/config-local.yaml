@@ -1,6 +1,7 @@
 App:
   Port: 8100
-  Name: ndaruhes-fresh
+  Name: GoClean
+  AliasName: go-clean
   Locale: en
   Environment: local
   Key: asfsfdsf
