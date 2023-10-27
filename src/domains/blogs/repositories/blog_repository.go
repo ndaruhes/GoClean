@@ -13,6 +13,7 @@ import (
 	"go-clean/src/models/requests"
 	"go-clean/src/shared/database/operation"
 	"net/http"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -83,14 +84,16 @@ func (repo *BlogRepository) SearchBlog(ctx context.Context, request *requests.Se
 	var response []entities.Blog
 	var totalData int64
 
-	// Create an Elasticsearch query with fuzzy matching
+	fuzziness := "AUTO"
+	if strings.Contains(request.Keyword, " ") {
+		fuzziness = "2"
+	}
 	esQuery := elastic.NewBoolQuery().Should(
-		elastic.NewMatchQuery("title", request.Keyword).Fuzziness("2").
-			Operator("and").
-			Analyzer("custom_analyzer"),
+		elastic.NewMatchQuery("title", request.Keyword).
+			Fuzziness(fuzziness).
+			Operator("and"),
 	)
 
-	// Perform the search using the Elasticsearch client
 	searchResult, err := repo.esClient.Search().
 		Index(esIndexName).
 		Query(esQuery).
@@ -104,8 +107,6 @@ func (repo *BlogRepository) SearchBlog(ctx context.Context, request *requests.Se
 
 	for _, hit := range searchResult.Hits.Hits {
 		var blog entities.Blog
-
-		// Deserialize the Elasticsearch document into your entity struct
 		if err := json.Unmarshal(hit.Source, &blog); err != nil {
 			return nil, 0, err
 		}
