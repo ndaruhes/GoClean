@@ -29,4 +29,4 @@ Elasticsearch:
   Password: elasticdocker123 # Docker
 
 OutboundURL:
-  ElasticsearchOutbound: https://localhost:9200
+  ElasticsearchOutbound: http://localhost:9200
