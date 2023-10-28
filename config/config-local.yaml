@@ -24,8 +24,8 @@ Database:
 
 Elasticsearch:
   Username: elastic
-  Password: w3j1NovY_Lxmtn__Wneq #PC
-#  Password: RvEDyIJxxG1XS-IH8Ois # Laptop
+#  Password: w3j1NovY_Lxmtn__Wneq #PC
+  Password: RvEDyIJxxG1XS-IH8Ois # Laptop
 
 OutboundURL:
   ElasticsearchOutbound: http://localhost:9200

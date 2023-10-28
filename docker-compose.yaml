@@ -29,5 +29,6 @@ services:
       - 8100:8100
     depends_on:
       - database
+      - elasticsearch
     extra_hosts:
       - "localhost:172.17.0.1"
