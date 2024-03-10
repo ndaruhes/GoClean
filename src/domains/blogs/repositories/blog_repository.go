@@ -12,10 +12,9 @@ import (
 	"go-clean/src/models/messages"
 	"go-clean/src/models/requests"
 	"go-clean/src/shared/database/operation"
-	"net/http"
-	"strings"
-
+	"go-clean/src/shared/elasticsearch"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type BlogRepository struct {
@@ -53,17 +52,11 @@ func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requ
 		return nil, 0, err
 	}
 
-	// Index the data into Elasticsearch
 	for _, blog := range response {
 		doc := map[string]interface{}{
-			"id":           blog.ID,
-			"content":      blog.Content,
-			"title":        blog.Title,
-			"cover":        blog.Cover,
-			"slug":         blog.Slug,
-			"published_at": blog.PublishedAt,
-			"user_id":      blog.UserID,
-			"user":         blog.User,
+			"id":      blog.ID,
+			"content": blog.Content,
+			"title":   blog.Title,
 		}
 
 		_, err := repo.esClient.Index().
@@ -81,20 +74,7 @@ func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requ
 }
 
 func (repo *BlogRepository) SearchBlog(ctx context.Context, request *requests.SearchBlogRequest) ([]entities.Blog, int64, error) {
-	var response []entities.Blog
-	var totalData int64
-
-	fuzziness := "AUTO"
-	if strings.Contains(request.Keyword, " ") {
-		fuzziness = "2"
-	}
-	esQuery := elastic.NewBoolQuery().Should(
-		elastic.NewMatchQuery("title", request.Keyword).
-			Fuzziness(fuzziness).
-			Operator("and").
-			FuzzyTranspositions(true),
-	)
-
+	esQuery := elasticsearch.NewBoolQuery("title", request.Keyword)
 	searchResult, err := repo.esClient.Search().
 		Index(esIndexName).
 		Query(esQuery).
@@ -104,7 +84,10 @@ func (repo *BlogRepository) SearchBlog(ctx context.Context, request *requests.Se
 		return nil, 0, err
 	}
 
-	totalData = searchResult.TotalHits()
+	totalData := searchResult.TotalHits()
+
+	var blogIds []string
+	var response []entities.Blog
 
 	for _, hit := range searchResult.Hits.Hits {
 		var blog entities.Blog
@@ -112,7 +95,19 @@ func (repo *BlogRepository) SearchBlog(ctx context.Context, request *requests.Se
 			return nil, 0, err
 		}
 
-		response = append(response, blog)
+		blogIds = append(blogIds, blog.ID)
+	}
+
+	statement := operation.GetDb(ctx, repo.db).WithContext(ctx).Model(&entities.Blog{}).
+		Select("id, content, title, cover, slug, published_at, user_id").
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, name")
+		}).
+		Where("id IN (?)", blogIds).Find(&response)
+
+	if err := statement.Scopes(operation.PaginateOrder(request.PaginationRequest)).
+		Find(&response).Error; err != nil {
+		return nil, 0, err
 	}
 
 	return response, totalData, nil
