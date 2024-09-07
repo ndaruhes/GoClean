@@ -18,9 +18,9 @@ Cors:
 Database:
   Host: localhost
   Port: 5432
-  Name: ndaruhes_fresh
-  Username: postgres
-  Password: root
+  Name: ndaruhes_fresh_docker
+  Username: postgres_docker
+  Password: root_docker
 
 Elasticsearch:
   Username: elastic

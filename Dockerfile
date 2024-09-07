@@ -1,5 +1,5 @@
 # STAGE 1
-FROM golang:1.19.9-alpine as GoCleanBuilder
+FROM golang:1.23.1-alpine as GoCleanBuilder
 
 # Instalasi dependensi yang diperlukan
 RUN apk add --no-cache pkgconfig
