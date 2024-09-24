@@ -22,11 +22,12 @@ func (wrapper *ErrorWrapper) Error() string {
 }
 
 func HasError(err error) bool {
-	var errorWrapper *ErrorWrapper
-	switch {
-	case errors.As(err, &errorWrapper):
-		return err.(*ErrorWrapper).Err != nil || err.(*ErrorWrapper).ErrorCode != ""
-	default:
-		return err != nil
+	if err == nil {
+		return false
 	}
+	var errorWrapper *ErrorWrapper
+	if errors.As(err, &errorWrapper) {
+		return errorWrapper.Err != nil || errorWrapper.ErrorCode != ""
+	}
+	return true
 }

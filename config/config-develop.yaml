@@ -17,7 +17,7 @@ Cors:
 
 Database:
   Host: localhost
-  Port: 5432
+  Port: 5433
   Name: ndaruhes_fresh_docker
   Username: postgres_docker
   Password: root_docker

@@ -166,7 +166,7 @@ func (uc *BlogUseCase) CreateBlog(ctx context.Context, request *requests.UpsertB
 	return nil
 }
 
-func (uc *BlogUseCase) AdjustBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
+func (uc *BlogUseCase) UpdateDraftedBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -274,7 +274,7 @@ func (uc *BlogUseCase) PublishBlog(ctx context.Context, blogID string, request *
 	return nil
 }
 
-func (uc *BlogUseCase) UpdateBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
+func (uc *BlogUseCase) UpdatePublishedBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error {
 	blog, err := uc.blogRepo.FindBlogById(ctx, blogID)
 	if err != nil {
 		return err
@@ -283,6 +283,7 @@ func (uc *BlogUseCase) UpdateBlog(ctx context.Context, blogID string, request *r
 	payload := &entities.Blog{
 		Title:   &request.Title,
 		Content: &request.Content,
+		Status:  "Published",
 	}
 
 	if file != nil && fileName != "" {
@@ -441,9 +442,11 @@ func uploadAndDeleteSingleFile(ctx context.Context, blog *entities.Blog, file []
 			return err
 		}
 
-		err = utils.DeleteSingleFile(constants.IMG_PATH+user.ID, *blog.Cover)
-		if err != nil {
-			return err
+		if utils.GetStringPointerValue(blog.Cover) != "" {
+			err = utils.DeleteSingleFile(constants.IMG_PATH+user.ID, *blog.Cover)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

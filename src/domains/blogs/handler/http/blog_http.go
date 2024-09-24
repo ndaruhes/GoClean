@@ -42,9 +42,9 @@ func setRoutes(route *fiber.App, handler *BlogHttp) {
 		blog.Get("/:id", handler.GetBlogDetail)
 		blog.Use(middlewares.AuthMiddleware())
 		blog.Post("", handler.CreateBlog)
-		blog.Put("/:id/edit", handler.AdjustBlog)
+		blog.Put("/drafted/:id/update", handler.UpdateDraftedBlog)
 		blog.Put("/:id/publish", handler.PublishBlog)
-		blog.Put("/:id", handler.UpdateBlog)
+		blog.Put("/published/:id/update", handler.UpdatePublishedBlog)
 		blog.Delete("/:id", handler.DeleteBlog)
 		blog.Put("/:id/slug", handler.UpdateSlug)
 		blog.Put("/:id/draft", handler.UpdateToDraft)
@@ -148,7 +148,15 @@ func (handler *BlogHttp) CreateBlog(fiberCtx *fiber.Ctx) error {
 	blogCategoryIds := handleBlogCategories(fiberCtx)
 	request.BlogCategoryIds = blogCategoryIds
 
-	file, fileName := handleSingleFile(fiberCtx)
+	file, fileName, err := handleSingleFile(fiberCtx)
+	if err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
+			Error:      err,
+			StatusCode: http.StatusBadRequest,
+		})
+		return nil
+	}
+
 	if err := handler.blogUc.CreateBlog(ctx, request, file, fileName); err != nil {
 		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
@@ -162,7 +170,7 @@ func (handler *BlogHttp) CreateBlog(fiberCtx *fiber.Ctx) error {
 	return nil
 }
 
-func (handler *BlogHttp) AdjustBlog(fiberCtx *fiber.Ctx) error {
+func (handler *BlogHttp) UpdateDraftedBlog(fiberCtx *fiber.Ctx) error {
 	ctx := utils.GetContext(fiberCtx)
 	request := &requests.UpsertBlogRequest{
 		Title:   fiberCtx.FormValue("title"),
@@ -172,8 +180,16 @@ func (handler *BlogHttp) AdjustBlog(fiberCtx *fiber.Ctx) error {
 	blogCategoryIds := handleBlogCategories(fiberCtx)
 	request.BlogCategoryIds = blogCategoryIds
 
-	file, fileName := handleSingleFile(fiberCtx)
-	if err := handler.blogUc.AdjustBlog(ctx, fiberCtx.Params("id"), request, file, fileName); err != nil {
+	file, fileName, err := handleSingleFile(fiberCtx)
+	if err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
+			Error:      err,
+			StatusCode: http.StatusBadRequest,
+		})
+		return nil
+	}
+
+	if err := handler.blogUc.UpdateDraftedBlog(ctx, fiberCtx.Params("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
@@ -213,7 +229,15 @@ func (handler *BlogHttp) PublishBlog(fiberCtx *fiber.Ctx) error {
 		return nil
 	}
 
-	file, fileName := handleSingleFile(fiberCtx)
+	file, fileName, err := handleSingleFile(fiberCtx)
+	if err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
+			Error:      err,
+			StatusCode: http.StatusBadRequest,
+		})
+		return nil
+	}
+
 	if err := handler.blogUc.PublishBlog(ctx, fiberCtx.Params("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
@@ -227,7 +251,7 @@ func (handler *BlogHttp) PublishBlog(fiberCtx *fiber.Ctx) error {
 	return nil
 }
 
-func (handler *BlogHttp) UpdateBlog(fiberCtx *fiber.Ctx) error {
+func (handler *BlogHttp) UpdatePublishedBlog(fiberCtx *fiber.Ctx) error {
 	ctx := utils.GetContext(fiberCtx)
 	request := &requests.UpsertBlogRequest{
 		Title:   fiberCtx.FormValue("title"),
@@ -254,8 +278,16 @@ func (handler *BlogHttp) UpdateBlog(fiberCtx *fiber.Ctx) error {
 		return nil
 	}
 
-	file, fileName := handleSingleFile(fiberCtx)
-	if err := handler.blogUc.UpdateBlog(ctx, fiberCtx.Params("id"), request, file, fileName); err != nil {
+	file, fileName, err := handleSingleFile(fiberCtx)
+	if err != nil {
+		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
+			Error:      err,
+			StatusCode: http.StatusBadRequest,
+		})
+		return nil
+	}
+
+	if err := handler.blogUc.UpdatePublishedBlog(ctx, fiberCtx.Params("id"), request, file, fileName); err != nil {
 		messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 			Error: err,
 		})
@@ -349,7 +381,7 @@ func handleBlogCategories(fiberCtx *fiber.Ctx) []int {
 	return convertedCategoryIds
 }
 
-func handleSingleFile(fiberCtx *fiber.Ctx) ([]byte, string) {
+func handleSingleFile(fiberCtx *fiber.Ctx) ([]byte, string, error) {
 	var (
 		file     []byte
 		fileName string
@@ -357,33 +389,21 @@ func handleSingleFile(fiberCtx *fiber.Ctx) ([]byte, string) {
 	header, err := fiberCtx.FormFile("cover")
 	if header != nil {
 		if messages.HasError(err) {
-			messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return nil, ""
+			return nil, "", err
 		}
 
 		err = validators.ValidateImage(header)
 		if messages.HasError(err) {
-			messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return nil, ""
+			return nil, "", err
 		}
 
 		file, err = utils.MultipartFileHeaderToByte(header)
 		if messages.HasError(err) {
-			messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Error:      err,
-			})
-			return nil, ""
+			return nil, "", err
 		}
 
 		fileName = utils.GenerateFileName(header)
 	}
 
-	return file, fileName
+	return file, fileName, nil
 }

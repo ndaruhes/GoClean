@@ -87,9 +87,12 @@ func SendErrorResponse(fiberCtx *fiber.Ctx, errorResponse responses.ErrorRespons
 
 				body := fiber.Map{
 					"success": false,
-					"error":   errorResponse.Error.Error(),
 					"status":  http.StatusText(err.StatusCode),
 				}
+
+				//if errorResponse.Error != nil && errorResponse.Error.Error() != "" {
+				//	body["error"] = errorResponse.Error.Error()
+				//}
 
 				if err.ErrorCode != "" {
 					body["message"] = message
@@ -103,7 +106,7 @@ func SendErrorResponse(fiberCtx *fiber.Ctx, errorResponse responses.ErrorRespons
 			}
 		default:
 			statusCode := 500
-			if errorResponse.StatusCode != 500 {
+			if errorResponse.StatusCode != 500 && errorResponse.StatusCode != 0 {
 				statusCode = errorResponse.StatusCode
 			}
 
@@ -113,7 +116,7 @@ func SendErrorResponse(fiberCtx *fiber.Ctx, errorResponse responses.ErrorRespons
 
 			body := fiber.Map{
 				"success": false,
-				"error":   errorResponse.Error.Error(),
+				"message": errorResponse.Error.Error(),
 				"status":  http.StatusText(statusCode),
 			}
 			fiberCtx.Status(statusCode).JSON(body)

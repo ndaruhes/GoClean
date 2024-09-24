@@ -52,24 +52,6 @@ func (repo *BlogRepository) GetPublicBlogList(ctx context.Context, request *requ
 		return nil, 0, err
 	}
 
-	for _, blog := range response {
-		doc := map[string]interface{}{
-			"id":      blog.ID,
-			"content": blog.Content,
-			"title":   blog.Title,
-		}
-
-		_, err := repo.esClient.Index().
-			Index(esIndexName).
-			Type("_doc").
-			Id(blog.ID).
-			BodyJson(doc).
-			Do(context.Background())
-		if err != nil {
-			return nil, 0, err
-		}
-	}
-
 	return response, totalData, err
 }
 
@@ -171,7 +153,37 @@ func (repo *BlogRepository) CreateBlog(ctx context.Context, blog *entities.Blog)
 }
 
 func (repo *BlogRepository) UpdateBlog(ctx context.Context, blogID string, blogStatusCheck string, blog *entities.Blog) error {
-	return operation.GetDb(ctx, repo.db).WithContext(ctx).Model(&entities.Blog{}).Where("id = ?", blogID).Where("status = ?", blogStatusCheck).Updates(&blog).Error
+	if err := operation.GetDb(ctx, repo.db).WithContext(ctx).Model(&entities.Blog{}).Where("id = ?", blogID).Where("status = ?", blogStatusCheck).Updates(&blog).Error; err != nil {
+		return err
+	}
+
+	switch blog.Status {
+	case constants.PUBLISHED:
+		doc := map[string]interface{}{
+			"id":      blogID,
+			"content": blog.Content,
+			"title":   blog.Title,
+		}
+
+		_, err := repo.esClient.Index().
+			Index(esIndexName).
+			Id(blogID).
+			BodyJson(doc).
+			Do(context.Background())
+		if err != nil {
+			return err
+		}
+	case constants.DRAFT:
+		_, err := repo.esClient.Delete().
+			Index(esIndexName).
+			Id(blogID).
+			Do(context.Background())
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (repo *BlogRepository) DeleteBlog(ctx context.Context, blogID string) error {

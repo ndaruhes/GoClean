@@ -13,9 +13,9 @@ type BlogUseCase interface {
 	SearchBlog(ctx context.Context, request *requests.SearchBlogRequest) ([]responses.PublicBlogListsResponse, int64, error)
 	GetBlogDetail(ctx context.Context, id string) (*responses.BlogDetailResponse, error)
 	CreateBlog(ctx context.Context, request *requests.UpsertBlogRequest, file []byte, fileName string) error
-	AdjustBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
+	UpdateDraftedBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
 	PublishBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
-	UpdateBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
+	UpdatePublishedBlog(ctx context.Context, blogID string, request *requests.UpsertBlogRequest, file []byte, fileName string) error
 	UpdateSlug(ctx context.Context, blogID string, request *requests.UpdateSlugRequest) error
 	UpdateBlogToDraft(ctx context.Context, blogID string) error
 	DeleteBlog(ctx context.Context, blogID string) error
