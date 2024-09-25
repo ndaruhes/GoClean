@@ -3,7 +3,7 @@ version: '3.8'
 services:
   database:
     image: postgres:latest
-    container_name: PostgresDB
+    container_name: GoClean-PostgresDB
     environment:
       POSTGRES_DB: ndaruhes_fresh_docker
       POSTGRES_USER: postgres_docker
@@ -13,7 +13,7 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.13
-    container_name: Elasticsearch
+    container_name: GoClean-Elasticsearch
     ports:
       - 9200:9200
       - 9300:9300
@@ -21,7 +21,7 @@ services:
       - discovery.type=single-node
 
   server:
-    container_name: GoCleanApp
+    container_name: GoClean-App
     build:
       dockerfile: Dockerfile
       context: ./
