@@ -2,7 +2,7 @@ App:
   Port: 8100
   Name: GoClean
   AliasName: go-clean
-  Locale: en
+  DefaultLocale: en
   Environment: local
   Key: asfsfdsf
   Debug: true

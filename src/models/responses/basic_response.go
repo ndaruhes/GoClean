@@ -2,6 +2,7 @@ package responses
 
 type SuccessResponse struct {
 	SuccessCode string
+	Parameters  []interface{}
 	StatusCode  int
 	Data        interface{}
 	TotalData   *int64

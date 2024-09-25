@@ -9,7 +9,7 @@ type ErrorWrapper struct {
 	Context    context.Context
 	Err        error
 	ErrorCode  string
-	Parameters []string
+	Parameters []interface{}
 	StatusCode int
 }
 

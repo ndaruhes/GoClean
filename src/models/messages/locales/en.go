@@ -44,8 +44,10 @@ var ErrorEN = map[string]string{
 	"ERROR-404001": "Data not found",
 
 	//	ERROR 500 LISTS
-	"ERROR-50001":      "Failed to migrate infrastructures",
-	"ERROR-50002":      "Migrate key doesn't valid",
-	"ERROR-50003":      "Upps, something went wrong",
-	"ERROR-FILE-50001": "Image size must be between %dx%d and %dx%d",
+	"ERROR-50001":       "Failed to migrate infrastructures",
+	"ERROR-50002":       "Migrate key doesn't valid",
+	"ERROR-50003":       "Upps, something went wrong",
+	"ERROR-IMAGE-50001": "Image size exceeds %f megabytes",
+	"ERROR-IMAGE-50002": "Invalid image format",
+	"ERROR-IMAGE-50003": "Image size must be between %dx%d and %dx%d",
 }

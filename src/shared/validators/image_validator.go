@@ -2,8 +2,6 @@ package validators
 
 import (
 	"bytes"
-	"errors"
-	"fmt"
 	"go-clean/src/models/messages"
 	"go-clean/src/models/validations"
 	"image"
@@ -38,7 +36,11 @@ func ValidateImage(header *multipart.FileHeader) error {
 		return err
 	}
 	if imageValidation.MaxSize > 0 && float32(header.Size) > imageValidation.MaxSize*1024*1024 {
-		return errors.New(fmt.Sprintf("file size exceeds %f megabytes", imageValidation.MaxSize))
+		return &messages.ErrorWrapper{
+			ErrorCode:  "ERROR-IMAGE-50001",
+			StatusCode: http.StatusBadRequest,
+			Parameters: []interface{}{imageValidation.MaxSize},
+		}
 	}
 	img, format, err := image.Decode(bytes.NewReader(fileBytes))
 	if err != nil {
@@ -46,16 +48,19 @@ func ValidateImage(header *multipart.FileHeader) error {
 	}
 
 	if !slices.Contains(imageValidation.Format, format) {
-		return errors.New("invalid image format")
+		return &messages.ErrorWrapper{
+			ErrorCode:  "ERROR-IMAGE-50002",
+			StatusCode: http.StatusBadRequest,
+		}
 	}
 
 	if imageValidation.MinWidth > 0 && img.Bounds().Dx() < imageValidation.MinWidth || imageValidation.MinHeight > 0 && img.Bounds().Dy() < imageValidation.MinHeight || imageValidation.MaxWidth > 0 && img.Bounds().Dx() > imageValidation.MaxWidth || imageValidation.MaxHeight > 0 && img.Bounds().Dy() > imageValidation.MaxHeight {
 		//return errors.New(fmt.Sprintf("image size must be between %dx%d and %dx%d", imageValidation.MinWidth, imageValidation.MinHeight, imageValidation.MaxWidth, imageValidation.MaxHeight))
-		//ErrorCode:  fmt.Sprintf("image size must be between %dx%d and %dx%d", imageValidation.MinWidth, imageValidation.MinHeight, imageValidation.MaxWidth, imageValidation.MaxHeight),
 
 		return &messages.ErrorWrapper{
-			ErrorCode:  "ERROR-FILE-50001",
+			ErrorCode:  "ERROR-IMAGE-50003",
 			StatusCode: http.StatusBadRequest,
+			Parameters: []interface{}{imageValidation.MinWidth, imageValidation.MinHeight, imageValidation.MaxWidth, imageValidation.MaxHeight},
 		}
 	}
 	return nil

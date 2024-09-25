@@ -2,6 +2,7 @@ package messages
 
 import (
 	"errors"
+	"fmt"
 	"go-clean/src/models/messages/locales"
 	"go-clean/src/models/responses"
 	"net/http"
@@ -20,6 +21,19 @@ var ErrorCodes = map[string]map[string]string{
 	"id": locales.ErrorID,
 }
 
+func getMessage(messageType string, lang string, messageCode string, params ...interface{}) string {
+	var message string
+
+	switch messageType {
+	case "Error Message":
+		message = ErrorCodes[lang][messageCode]
+	case "Success Message":
+		message = SuccessCodes[lang][messageCode]
+	}
+
+	return fmt.Sprintf(message, params...)
+}
+
 func SendSuccessResponse(fiberCtx *fiber.Ctx, successResponse responses.SuccessResponse) {
 	lang := fiberCtx.Locals("lang").(string)
 	var message string
@@ -31,12 +45,12 @@ func SendSuccessResponse(fiberCtx *fiber.Ctx, successResponse responses.SuccessR
 	if (successResponse.SuccessCode != "") && (SuccessCodes[lang] == nil || SuccessCodes[lang][successResponse.SuccessCode] == "") {
 		fiberCtx.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
-			"error":   "Success code is not defined",
+			"error":   "Success code not found",
 			"status":  http.StatusText(http.StatusInternalServerError),
 		})
 		return
 	} else if successResponse.SuccessCode != "" {
-		message = SuccessCodes[lang][successResponse.SuccessCode]
+		message = getMessage("Success Message", lang, successResponse.SuccessCode, successResponse.Parameters...)
 	}
 
 	body := fiber.Map{
@@ -77,12 +91,12 @@ func SendErrorResponse(fiberCtx *fiber.Ctx, errorResponse responses.ErrorRespons
 				if (err.ErrorCode != "") && (ErrorCodes[lang] == nil || ErrorCodes[lang][err.ErrorCode] == "") {
 					fiberCtx.Status(http.StatusInternalServerError).JSON(fiber.Map{
 						"success": false,
-						"error":   "Error code is not defined",
+						"error":   "Error code not found",
 						"status":  http.StatusText(http.StatusInternalServerError),
 					})
 					return
 				} else if err.ErrorCode != "" {
-					message = ErrorCodes[lang][err.ErrorCode]
+					message = getMessage("Error Message", lang, err.ErrorCode, err.Parameters...)
 				}
 
 				body := fiber.Map{

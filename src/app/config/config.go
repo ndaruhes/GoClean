@@ -24,14 +24,14 @@ type Config struct {
 }
 
 type App struct {
-	Port        int
-	Name        string
-	AliasName   string
-	Environment string
-	Locale      string
-	Key         string
-	Debug       bool
-	MigrateKey  string
+	Port          int
+	Name          string
+	AliasName     string
+	Environment   string
+	DefaultLocale string
+	Key           string
+	Debug         bool
+	MigrateKey    string
 }
 
 type Cors struct {

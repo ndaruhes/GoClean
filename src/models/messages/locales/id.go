@@ -44,7 +44,10 @@ var ErrorID = map[string]string{
 	"ERROR-404001": "Data tidak ditemukan",
 
 	//	ERROR 500 LISTS
-	"ERROR-50001": "Gagal migrasi infrastructures",
-	"ERROR-50002": "Migrate key tidak valid",
-	"ERROR-50003": "Upps, terjadi kesalahan",
+	"ERROR-50001":       "Gagal migrasi infrastructures",
+	"ERROR-50002":       "Migrate key tidak valid",
+	"ERROR-50003":       "Upps, terjadi kesalahan",
+	"ERROR-IMAGE-50001": "Ukuran gambar melebihi %f megabyte",
+	"ERROR-IMAGE-50002": "Format gambar tidak valid",
+	"ERROR-IMAGE-50003": "Ukuran gambar harus antara %dx%d dan %dx%d",
 }

@@ -7,11 +7,14 @@ import (
 
 func LangMiddleware() fiber.Handler {
 	return func(fiberCtx *fiber.Ctx) error {
-		lang := fiberCtx.Get("lang", config.GetConfig().App.Locale)
-		if fiberCtx.Get("lang") == "" {
-			fiberCtx.Request().Header.Add("lang", lang)
-			fiberCtx.Locals("lang", lang)
+		langHeader := fiberCtx.Get("lang")
+		if langHeader == "" {
+			langHeader = config.GetConfig().App.DefaultLocale
 		}
+
+		fiberCtx.Request().Header.Add("lang", langHeader)
+		fiberCtx.Locals("lang", langHeader)
+
 		return fiberCtx.Next()
 	}
 }
