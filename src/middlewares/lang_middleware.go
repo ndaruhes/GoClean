@@ -1,19 +1,20 @@
 package middlewares
 
 import (
-	"go-clean/configs/app"
-	"go-clean/shared/utils"
-
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	"go-clean/src/app/config"
 )
 
-func LangMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if c.Request.Header.Get("lang") == "" {
-			c.Request.Header.Set("lang", app.GetConfig().App.Locale)
+func LangMiddleware() fiber.Handler {
+	return func(fiberCtx *fiber.Ctx) error {
+		langHeader := fiberCtx.Get("lang")
+		if langHeader == "" {
+			langHeader = config.GetConfig().App.DefaultLocale
 		}
-		c.Set("lang", c.GetHeader("lang"))
-		utils.OverrideGinRequest(c, "lang", c.GetHeader("lang"))
-		c.Next()
+
+		fiberCtx.Request().Header.Add("lang", langHeader)
+		fiberCtx.Locals("lang", langHeader)
+
+		return fiberCtx.Next()
 	}
 }

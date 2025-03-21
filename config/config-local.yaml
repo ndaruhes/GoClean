@@ -1,16 +1,32 @@
-app:
+App:
   Port: 8100
-  Name: go-clean
-  Locale: en
-  #Prefix: JP
+  Name: GoClean
+  AliasName: go-clean
+  DefaultLocale: en
   Environment: local
   Key: asfsfdsf
   Debug: true
   MigrateKey:
 
-database:
-  host: localhost
-  port: 3306
-  name: fresh
-  username: root
-  password:
+Cors:
+  AllowOrigins: http://localhost:3000
+  AllowHeaders: Origin, Content-Type, Accept
+  AllowMethods: GET, POST, PATCH, DELETE
+  AllowCredentials: true
+  ExposeHeaders: "*"
+
+Database:
+  Host: localhost
+  Port: 5432
+  Name: ndaruhes_fresh
+  Username: postgres
+  Password: postgres
+
+Elasticsearch:
+  Username: elastic
+#  Password: w3j1NovY_Lxmtn__Wneq #PC
+#  Password: RvEDyIJxxG1XS-IH8Ois # Laptop
+  Password: Lv9Lt+jCWym6GUnxsDyN # Zephyrus G16
+
+OutboundURL:
+  ElasticsearchOutbound: http://localhost:9200

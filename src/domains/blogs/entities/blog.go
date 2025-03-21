@@ -1,21 +1,25 @@
 package entities
 
 import (
-	"github.com/rs/xid"
-	user "go-clean/domains/users/entities"
-	"go-clean/shared/entities"
+	user "go-clean/src/domains/users/entities"
+	"go-clean/src/shared/database/entities"
 	"gorm.io/gorm"
 	"strings"
+	"time"
+
+	"github.com/rs/xid"
 )
 
 type Blog struct {
-	ID      string `json:"id" gorm:"primaryKey;type:varchar(255);not null"`
-	Title   string `json:"title" gorm:"type:varchar(255);not null"`
-	Slug    string `json:"slug" gorm:"index:slug,unique,type:varchar(255);not null"`
-	Cover   string `json:"cover" gorm:"type:varchar(255);not null"`
-	Content string `json:"content" gorm:"type:varchar(255);not null"`
-	UserID  string `json:"user_id" gorm:"type:varchar(255);not null"`
-	User    user.User
+	ID          string     `json:"id" gorm:"primaryKey;type:varchar(255);not null"`
+	Title       *string    `json:"title" gorm:"type:varchar(255);null"`
+	Slug        string     `json:"slug" gorm:"index:slug,unique;type:varchar(255);not null"`
+	Cover       *string    `json:"cover" gorm:"type:varchar(255);null"`
+	Content     *string    `json:"content" gorm:"type:text;null"`
+	Status      string     `json:"status" gorm:"type:varchar(255);default:'Draft';not null"`
+	PublishedAt *time.Time `json:"published_at"`
+	UserID      string     `json:"user_id" gorm:"type:varchar(255);not null;"`
+	User        user.User
 	entities.Timestamp
 }
 

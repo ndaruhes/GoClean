@@ -4,15 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go-clean/models/messages"
-	"go-clean/shared/validators/lang"
+	"go-clean/src/models/messages"
+	"go-clean/src/shared/validators/lang"
 	"net/http"
 	"reflect"
 	"strings"
 
 	"gorm.io/gorm"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-playground/locales"
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/id"
@@ -20,15 +19,16 @@ import (
 	"github.com/go-playground/validator/v10"
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
 	idTranslations "github.com/go-playground/validator/v10/translations/id"
+	"github.com/gofiber/fiber/v2"
 )
 
 type injection struct {
 	payload interface{}
 	db      *gorm.DB
-	ctx     *gin.Context
+	ctx     context.Context
 }
 
-func ValidateStruct(ctx *gin.Context, payload interface{}) (map[string][]string, error) {
+func ValidateStruct(ctx context.Context, payload interface{}) (map[string][]string, error) {
 	validate := validator.New()
 	registerTagName(validate)
 	trans := registerLanguage(validate, ctx.Value("lang").(string))
@@ -119,27 +119,25 @@ func registerTranslation(validate *validator.Validate, rules map[string]string, 
 	}
 }
 
-func exists(ctx *gin.Context, db *gorm.DB, slices []string, value any) bool {
+func exists(fiberCtx *fiber.Ctx, db *gorm.DB, slices []string, value any) bool {
 	var count int64
 
-	res := db.WithContext(ctx).Raw(fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE %s = ?", slices[0], slices[1]), value)
+	query := db.Table(slices[0]).Where(fmt.Sprintf("%s = ?", slices[1]), value)
 
 	if len(slices) == 4 {
 		if slices[3] == "NULL" {
-			res = db.WithContext(ctx).Raw(fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE %s = ? and %s is NULL", slices[0], slices[1], slices[2]), value)
+			query = query.Where(fmt.Sprintf("%s IS NULL", slices[2]))
 		} else {
-			if slices[3] == "NULL" {
-				res = db.WithContext(ctx).Raw(fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE %s = ? and %s = ?", slices[0], slices[1], slices[2]), value, slices[3])
-			}
+			query = query.Where(fmt.Sprintf("%s = ?", slices[2]), slices[3])
 		}
 	}
 
-	res.Count(&count)
+	query.Count(&count)
 	return count > 0
 }
 
 func (inject *injection) validateExists(fl validator.FieldLevel) bool {
-	ctx := context.Background().(*gin.Context)
+	ctx := fl.Top().Interface().(*fiber.Ctx)
 	value := fl.Field().Interface()
 	slices := strings.Split(fl.Param(), ";")
 

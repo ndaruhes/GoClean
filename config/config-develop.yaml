@@ -1,0 +1,32 @@
+App:
+  Port: 8100
+  Name: GoClean
+  AliasName: go-clean
+  DefaultLocale: en
+  Environment: develop
+  Key: asfsfdsf
+  Debug: true
+  MigrateKey:
+
+Cors:
+  AllowOrigins: http://localhost:3000
+  AllowHeaders: Origin, Content-Type, Accept
+  AllowMethods: GET, POST, PATCH, DELETE
+  AllowCredentials: true
+  ExposeHeaders: "*"
+
+Database:
+  Host: localhost
+  Port: 5433
+  Name: ndaruhes_fresh_docker
+  Username: postgres_docker
+  Password: root_docker
+
+Elasticsearch:
+  Username: elastic
+#  Password: w3j1NovY_Lxmtn__Wneq #PC
+#  Password: RvEDyIJxxG1XS-IH8Ois # Laptop
+  Password: elasticdocker123 # Docker
+
+OutboundURL:
+  ElasticsearchOutbound: http://localhost:9200

@@ -2,11 +2,13 @@ package messages
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"go-clean/models/messages/locales"
-	"go-clean/models/responses"
-	"gorm.io/gorm"
+	"fmt"
+	"go-clean/src/models/messages/locales"
+	"go-clean/src/models/responses"
 	"net/http"
+
+	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 var SuccessCodes = map[string]map[string]string{
@@ -19,8 +21,21 @@ var ErrorCodes = map[string]map[string]string{
 	"id": locales.ErrorID,
 }
 
-func SendSuccessResponse(ctx *gin.Context, successResponse responses.SuccessResponse) {
-	lang := ctx.Value("lang").(string)
+func getMessage(messageType string, lang string, messageCode string, params ...interface{}) string {
+	var message string
+
+	switch messageType {
+	case "Error Message":
+		message = ErrorCodes[lang][messageCode]
+	case "Success Message":
+		message = SuccessCodes[lang][messageCode]
+	}
+
+	return fmt.Sprintf(message, params...)
+}
+
+func SendSuccessResponse(fiberCtx *fiber.Ctx, successResponse responses.SuccessResponse) {
+	lang := fiberCtx.Locals("lang").(string)
 	var message string
 
 	if successResponse.StatusCode == 0 {
@@ -28,17 +43,17 @@ func SendSuccessResponse(ctx *gin.Context, successResponse responses.SuccessResp
 	}
 
 	if (successResponse.SuccessCode != "") && (SuccessCodes[lang] == nil || SuccessCodes[lang][successResponse.SuccessCode] == "") {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+		fiberCtx.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
-			"error":   "Success code is not defined",
+			"error":   "Success code not found",
 			"status":  http.StatusText(http.StatusInternalServerError),
 		})
 		return
 	} else if successResponse.SuccessCode != "" {
-		message = SuccessCodes[lang][successResponse.SuccessCode]
+		message = getMessage("Success Message", lang, successResponse.SuccessCode, successResponse.Parameters...)
 	}
 
-	body := gin.H{
+	body := fiber.Map{
 		"success": true,
 		"status":  http.StatusText(successResponse.StatusCode),
 		"message": message,
@@ -47,16 +62,22 @@ func SendSuccessResponse(ctx *gin.Context, successResponse responses.SuccessResp
 	if successResponse.Data != nil {
 		body["data"] = successResponse.Data
 	}
-	ctx.JSON(successResponse.StatusCode, body)
+
+	if successResponse.TotalData != nil {
+		body["totalData"] = successResponse.TotalData
+	}
+	fiberCtx.Status(successResponse.StatusCode).JSON(body)
 }
 
-func SendErrorResponse(ctx *gin.Context, errorResponse responses.ErrorResponse) {
+func SendErrorResponse(fiberCtx *fiber.Ctx, errorResponse responses.ErrorResponse) {
 	if HasError(errorResponse.Error) {
-		switch errorResponse.Error.(type) {
-		case *ErrorWrapper:
-			err := errorResponse.Error.(*ErrorWrapper)
+		var errorWrapper *ErrorWrapper
+		switch {
+		case errors.As(errorResponse.Error, &errorWrapper):
+			var err *ErrorWrapper
+			errors.As(errorResponse.Error, &err)
 			if err != nil {
-				lang := ctx.Value("lang").(string)
+				lang := fiberCtx.Locals("lang").(string)
 				var message string
 
 				if errorResponse.StatusCode == 0 {
@@ -68,21 +89,24 @@ func SendErrorResponse(ctx *gin.Context, errorResponse responses.ErrorResponse) 
 				}
 
 				if (err.ErrorCode != "") && (ErrorCodes[lang] == nil || ErrorCodes[lang][err.ErrorCode] == "") {
-					ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					fiberCtx.Status(http.StatusInternalServerError).JSON(fiber.Map{
 						"success": false,
-						"error":   "Error code is not defined",
+						"error":   "Error code not found",
 						"status":  http.StatusText(http.StatusInternalServerError),
 					})
 					return
 				} else if err.ErrorCode != "" {
-					message = ErrorCodes[lang][err.ErrorCode]
+					message = getMessage("Error Message", lang, err.ErrorCode, err.Parameters...)
 				}
 
-				body := gin.H{
+				body := fiber.Map{
 					"success": false,
-					"error":   errorResponse.Error.Error(),
 					"status":  http.StatusText(err.StatusCode),
 				}
+
+				//if errorResponse.Error != nil && errorResponse.Error.Error() != "" {
+				//	body["error"] = errorResponse.Error.Error()
+				//}
 
 				if err.ErrorCode != "" {
 					body["message"] = message
@@ -92,11 +116,11 @@ func SendErrorResponse(ctx *gin.Context, errorResponse responses.ErrorResponse) 
 					body["formErrors"] = errorResponse.FormErrors
 				}
 
-				ctx.JSON(err.StatusCode, body)
+				fiberCtx.Status(err.StatusCode).JSON(body)
 			}
 		default:
 			statusCode := 500
-			if errorResponse.StatusCode != 500 {
+			if errorResponse.StatusCode != 500 && errorResponse.StatusCode != 0 {
 				statusCode = errorResponse.StatusCode
 			}
 
@@ -104,12 +128,12 @@ func SendErrorResponse(ctx *gin.Context, errorResponse responses.ErrorResponse) 
 				statusCode = http.StatusNotFound
 			}
 
-			body := gin.H{
+			body := fiber.Map{
 				"success": false,
-				"error":   errorResponse.Error.Error(),
+				"message": errorResponse.Error.Error(),
 				"status":  http.StatusText(statusCode),
 			}
-			ctx.JSON(statusCode, body)
+			fiberCtx.Status(statusCode).JSON(body)
 		}
 	}
 }

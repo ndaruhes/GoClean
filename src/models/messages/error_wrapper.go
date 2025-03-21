@@ -1,14 +1,15 @@
 package messages
 
 import (
-	"github.com/gin-gonic/gin"
+	"context"
+	"errors"
 )
 
 type ErrorWrapper struct {
-	Context    *gin.Context
+	Context    context.Context
 	Err        error
 	ErrorCode  string
-	Parameters []string
+	Parameters []interface{}
 	StatusCode int
 }
 
@@ -21,10 +22,12 @@ func (wrapper *ErrorWrapper) Error() string {
 }
 
 func HasError(err error) bool {
-	switch err.(type) {
-	case *ErrorWrapper:
-		return err.(*ErrorWrapper).Err != nil || err.(*ErrorWrapper).ErrorCode != ""
-	default:
-		return err != nil
+	if err == nil {
+		return false
 	}
+	var errorWrapper *ErrorWrapper
+	if errors.As(err, &errorWrapper) {
+		return errorWrapper.Err != nil || errorWrapper.ErrorCode != ""
+	}
+	return true
 }

@@ -1,6 +1,8 @@
 package entities
 
-import "go-clean/shared/entities"
+import (
+	"go-clean/src/shared/database/entities"
+)
 
 type CategoryBlog struct {
 	ID               int `json:"id" gorm:"primaryKey"`
@@ -15,4 +17,8 @@ type CategoryBlogLang struct {
 	Name           string `json:"name" gorm:"type:varchar(255)"`
 	CategoryBlog   CategoryBlog
 	entities.Timestamp
+}
+
+func (CategoryBlogLang) TableName() string {
+	return "category_blogs_lang"
 }

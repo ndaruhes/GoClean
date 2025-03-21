@@ -2,18 +2,18 @@ package helpers
 
 import (
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
-	"go-clean/models/responses"
+	"go-clean/src/models/responses"
 	"strings"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var secretKey = "key"
 
 func GenerateToken(id string, email string, role string) (string, error) {
-	expiry := time.Now().Add(time.Hour * 1).Unix()
+	expiry := time.Now().Add(time.Hour * 10).Unix()
 	claims := jwt.MapClaims{
 		"id":    id,
 		"email": email,
@@ -30,9 +30,9 @@ func GenerateToken(id string, email string, role string) (string, error) {
 	return signedToken, nil
 }
 
-func VerifyToken(ctx *gin.Context) (*responses.TokenDecoded, error) {
+func VerifyToken(fiberCtx *fiber.Ctx) (*responses.TokenDecoded, error) {
 	errResponse := errors.New("sign in to proceed")
-	headerToken := ctx.Request.Header.Get("Authorization")
+	headerToken := fiberCtx.Get("Authorization")
 	bearer := strings.HasPrefix(headerToken, "Bearer")
 
 	if !bearer {

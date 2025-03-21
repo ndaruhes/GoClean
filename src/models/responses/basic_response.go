@@ -2,8 +2,10 @@ package responses
 
 type SuccessResponse struct {
 	SuccessCode string
+	Parameters  []interface{}
 	StatusCode  int
 	Data        interface{}
+	TotalData   *int64
 }
 
 type ErrorResponse struct {

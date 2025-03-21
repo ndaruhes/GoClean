@@ -2,17 +2,16 @@ package main
 
 import (
 	"fmt"
-	appConfig "go-clean/configs/app"
-
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	server "go-clean/src/app"
+	appConfig "go-clean/src/app/config"
 )
 
 func main() {
-	app := gin.Default()
-	RegisterMiddlewares(app)
-	RegisterRoutes(app)
-	err := app.Run(fmt.Sprintf(":%d", appConfig.GetConfig().App.Port))
-	if err != nil {
+	app := fiber.New()
+	server.RegisterMiddlewares(app)
+	server.RegisterRoutes(app)
+	if err := app.Listen(fmt.Sprintf(":%d", appConfig.GetConfig().App.Port)); err != nil {
 		return
 	}
 }

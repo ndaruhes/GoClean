@@ -1,31 +1,31 @@
 package middlewares
 
 import (
-	"github.com/gin-gonic/gin"
-	"go-clean/models/messages"
-	"go-clean/models/responses"
-	"go-clean/shared/helpers"
+	"go-clean/src/models/messages"
+	"go-clean/src/models/responses"
+	"go-clean/src/shared/helpers"
 	"net/http"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func Authenticated() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		user, err := helpers.VerifyToken(ctx)
+func AuthMiddleware() fiber.Handler {
+	return func(fiberCtx *fiber.Ctx) error {
+		user, err := helpers.VerifyToken(fiberCtx)
 		if err != nil {
-			messages.SendErrorResponse(ctx, responses.ErrorResponse{
+			messages.SendErrorResponse(fiberCtx, responses.ErrorResponse{
 				Error:      err,
 				StatusCode: http.StatusUnauthorized,
 			})
-			ctx.Abort()
-			return
+			return nil
 		}
 
 		if user.Role == "Member" {
-			ctx.Set("member", user)
+			fiberCtx.Locals("member", user)
 		} else {
-			ctx.Set("admin", user)
+			fiberCtx.Locals("admin", user)
 		}
 
-		ctx.Next()
+		return fiberCtx.Next()
 	}
 }
